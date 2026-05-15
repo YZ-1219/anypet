@@ -358,25 +358,16 @@ async function startGenerate(){
 
 // ── REPLICATE POLLING (fallback) ───────────────────────────
 async function loadImg(src){
-  return new Promise(async (res,rej)=>{
-    // 先尝试直接加载
-    const tryDirect = () => new Promise((r,j)=>{
-      const img=new Image(); img.crossOrigin='anonymous';
-      img.onload=()=>r(img);
-      img.onerror=()=>j(new Error('direct failed'));
-      img.src=src;
-    });
-    // 如果失败，通过代理加载
-    const tryProxy = () => new Promise((r,j)=>{
-      const img=new Image();
-      img.onload=()=>r(img);
-      img.onerror=()=>j(new Error('图像加载失败'));
-      img.src='https://images.weserv.nl/?url='+encodeURIComponent(src)+'&output=jpg&w=768';
-    });
-    try { res(await tryDirect()); }
-    catch(e) {
-      try { res(await tryProxy()); }
-      catch(e2) { rej(e2); }
+  return new Promise((res,rej)=>{
+    const img = new Image();
+    img.onload = () => res(img);
+    img.onerror = (e) => rej(new Error('图像加载失败: ' + src.substring(0,50)));
+    // base64 直接赋值，不需要 crossOrigin
+    if (src.startsWith('data:')) {
+      img.src = src;
+    } else {
+      img.crossOrigin = 'anonymous';
+      img.src = src;
     }
   });
 }
