@@ -1,4 +1,4 @@
-// api/generate.js — 先上传图片到 Replicate，再做 img2img
+// api/generate.js — fal.ai Flux Redux，保留宠物外形特征
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -7,23 +7,31 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const apiKey = process.env.REPLICATE_API_KEY;
-  if (!apiKey) return res.status(500).json({ error: 'API Key 未配置' });
+  const falKey = process.env.FAL_API_KEY;
+  if (!falKey) return res.status(500).json({ error: 'FAL API Key 未配置' });
 
   try {
     const { prompt, image, animal } = req.body;
-    const fullPrompt = `${animal || 'cute pet'} ${prompt}, photorealistic, highly detailed fur, professional studio lighting, 4k quality`;
 
-    // 用 Flux schnell 生成（最稳定），后续再升级 img2img
-    const imageUrl = await runFlux(apiKey, fullPrompt);
-    if (!imageUrl) throw new Error('生成失败，请重试');
+    const fullPrompt = `${animal || 'cute pet'} ${prompt}, photorealistic, highly detailed fur and facial features, professional studio portrait, 4k quality`;
 
-    // 下载图片转 base64 返回（解决前端跨域）
-    const imgResp = await fetch(imageUrl);
-    if (!imgResp.ok) throw new Error('图片下载失败: ' + imgResp.status);
+    let outputUrl;
+
+    if (image) {
+      // Flux Redux — 读取原图特征，保留外形，改变风格
+      outputUrl = await runFluxRedux(falKey, image, fullPrompt);
+    } else {
+      outputUrl = await runFluxDev(falKey, fullPrompt);
+    }
+
+    if (!outputUrl) throw new Error('未获得图片');
+
+    // 下载转 base64 返回，解决前端跨域
+    const imgResp = await fetch(outputUrl);
+    if (!imgResp.ok) throw new Error('图片下载失败');
     const buffer = await imgResp.arrayBuffer();
     const base64 = Buffer.from(buffer).toString('base64');
-    const ct = imgResp.headers.get('content-type') || 'image/webp';
+    const ct = imgResp.headers.get('content-type') || 'image/jpeg';
 
     return res.status(200).json({ output: `data:${ct};base64,${base64}` });
 
@@ -33,46 +41,56 @@ export default async function handler(req, res) {
   }
 }
 
-async function runFlux(apiKey, prompt) {
-  const resp = await fetch(
-    'https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions',
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'wait',
-      },
-      body: JSON.stringify({
-        input: {
-          prompt,
-          width: 768,
-          height: 768,
-          num_outputs: 1,
-          num_inference_steps: 4,
-          guidance_scale: 0,
-        }
-      })
-    }
-  );
+// Flux Redux — 图片风格迁移，保留主体特征
+async function runFluxRedux(falKey, imageData, prompt) {
+  const resp = await fetch('https://fal.run/fal-ai/flux-pro/v1/redux', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Key ${falKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      image_url: imageData,
+      prompt: prompt,
+      num_inference_steps: 28,
+      guidance_scale: 3.5,
+      image_size: { width: 768, height: 768 },
+    })
+  });
+
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    console.log('Flux Redux error:', JSON.stringify(err));
+    // fallback to Flux Dev text-to-image
+    return await runFluxDev(falKey, prompt);
+  }
 
   const data = await resp.json();
-  if (!resp.ok) throw new Error(data.detail || 'Flux 调用失败');
-  if (data.status === 'starting' || data.status === 'processing') {
-    return await poll(apiKey, data.id);
-  }
-  return data.output?.[0];
+  return data?.images?.[0]?.url || data?.image?.url;
 }
 
-async function poll(apiKey, id) {
-  for (let i = 0; i < 30; i++) {
-    await new Promise(r => setTimeout(r, 2000));
-    const r = await fetch(`https://api.replicate.com/v1/predictions/${id}`, {
-      headers: { 'Authorization': `Bearer ${apiKey}` }
-    });
-    const data = await r.json();
-    if (data.status === 'succeeded') return Array.isArray(data.output) ? data.output[0] : data.output;
-    if (data.status === 'failed') throw new Error(data.error || '生成失败');
+// Flux Dev — 文字生成（fallback）
+async function runFluxDev(falKey, prompt) {
+  const resp = await fetch('https://fal.run/fal-ai/flux/dev', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Key ${falKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      prompt: prompt,
+      num_inference_steps: 28,
+      guidance_scale: 3.5,
+      image_size: { width: 768, height: 768 },
+      num_images: 1,
+    })
+  });
+
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.detail || err.message || 'fal.ai 调用失败');
   }
-  throw new Error('超时，请重试');
+
+  const data = await resp.json();
+  return data?.images?.[0]?.url;
 }
