@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AnyPet — 动态壁纸工坊</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#080608;--ink2:#1a1520;--cream:#F0EAF8;--cream2:rgba(240,234,248,0.6);
+  --cream3:rgba(240,234,248,0.3);--gold:#C9942A;--purple:#7C3AED;--purple2:#A855F7;
+  --border:rgba(240,234,248,0.08);--border2:rgba(240,234,248,0.15);--r:14px;--rs:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--ink);color:var(--cream);min-height:100vh;overflow-x:hidden;}
+
+nav{display:flex;align-items:center;padding:16px 40px;border-bottom:1px solid var(--border);background:rgba(8,6,8,0.9);backdrop-filter:blur(16px);position:sticky;top:0;z-index:200;}
+.logo{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;display:flex;align-items:center;gap:8px;}
+.logo-dot{width:28px;height:28px;border-radius:8px;background:var(--purple);display:flex;align-items:center;justify-content:center;font-size:14px;}
+.logo em{font-style:italic;color:var(--gold);}
+.nav-tag{margin-left:12px;font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--purple2);background:rgba(124,58,237,0.12);border:1px solid rgba(124,58,237,0.25);padding:3px 10px;border-radius:20px;}
+.nav-status{margin-left:auto;font-size:12px;color:rgba(240,234,248,0.4);display:flex;align-items:center;gap:6px;}
+.status-dot{width:7px;height:7px;border-radius:50%;background:#34d399;}
+
+.main{display:grid;grid-template-columns:320px 1fr;min-height:calc(100vh - 57px);}
+
+.left-panel{border-right:1px solid var(--border);padding:20px 16px;display:flex;flex-direction:column;gap:18px;overflow-y:auto;}
+
+.sec-title{font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--cream3);margin-bottom:9px;display:flex;align-items:center;gap:6px;}
+.sec-title::before{content:'';width:14px;height:1px;background:var(--purple2);}
+
+.animal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
+.ao{border:1px solid var(--border2);border-radius:9px;padding:8px 4px;text-align:center;cursor:pointer;transition:all 0.15s;background:rgba(255,255,255,0.02);}
+.ao:hover{border-color:var(--purple2);background:rgba(168,85,247,0.08);}
+.ao.sel{border-color:var(--purple2);background:rgba(168,85,247,0.12);}
+.ao .em{font-size:20px;display:block;margin-bottom:3px;}
+.ao .nm{font-size:10px;color:var(--cream3);font-weight:500;}
+.ao.sel .nm{color:var(--purple2);}
+
+.costume-list{display:flex;flex-direction:column;gap:5px;}
+.co{display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid var(--border2);border-radius:var(--rs);cursor:pointer;transition:all 0.15s;background:rgba(255,255,255,0.02);}
+.co:hover{border-color:var(--gold);background:rgba(201,148,42,0.05);}
+.co.sel{border-color:var(--gold);background:rgba(201,148,42,0.08);}
+.co .co-em{font-size:17px;flex-shrink:0;}
+.co-name{font-size:12px;font-weight:500;color:var(--cream2);}
+.co-sub{font-size:10px;color:var(--cream3);}
+.co.sel .co-name{color:var(--gold);}
+
+.upload-zone{border:1.5px dashed var(--border2);border-radius:var(--r);min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:all 0.2s;background:rgba(255,255,255,0.01);text-align:center;}
+.upload-zone:hover{border-color:var(--purple2);background:rgba(168,85,247,0.05);}
+.upload-zone.has-img{overflow:hidden;cursor:default;}
+.upload-zone.has-img:hover{border-color:var(--border2);background:transparent;}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.upload-zone.has-img input{display:none;}
+.upload-preview{width:100%;height:120px;object-fit:cover;display:block;}
+.upload-change{width:100%;padding:5px;background:rgba(255,255,255,0.04);border:none;border-top:1px solid var(--border);color:var(--cream3);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.upload-change:hover{background:rgba(255,255,255,0.07);}
+.upload-hint{font-size:12px;color:var(--cream3);line-height:1.5;}
+.upload-hint strong{display:block;color:var(--cream2);font-size:13px;margin-bottom:3px;}
+
+.effect-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.ef{border:1px solid var(--border2);border-radius:9px;overflow:hidden;cursor:pointer;transition:all 0.18s;}
+.ef:hover{border-color:var(--purple2);transform:translateY(-2px);}
+.ef.sel{border-color:var(--purple2);border-width:1.5px;}
+.ef-preview{height:52px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.ef-label{padding:4px 6px;border-top:1px solid var(--border);font-size:10px;font-weight:500;color:var(--cream3);text-align:center;}
+.ef.sel .ef-label{color:var(--purple2);}
+
+.gen-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--purple),#9333EA);color:white;border:none;border-radius:var(--rs);font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.gen-btn:hover:not(:disabled){filter:brightness(1.15);transform:translateY(-1px);}
+.gen-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.spin{display:inline-block;animation:spin 0.8s linear infinite;}
+
+.right-panel{display:flex;flex-direction:column;align-items:center;padding:28px 40px;position:relative;overflow:hidden;}
+.canvas-wrap{width:280px;height:500px;border-radius:30px;border:2px solid rgba(255,255,255,0.1);overflow:hidden;position:relative;box-shadow:0 40px 80px rgba(0,0,0,0.7);background:#000;flex-shrink:0;}
+#wallpaperCanvas{width:100%;height:100%;display:block;}
+
+.clock-overlay{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);text-align:center;pointer-events:none;}
+.clock-time{font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:600;color:white;text-shadow:0 2px 20px rgba(0,0,0,0.8);line-height:1;}
+.clock-date{font-size:13px;color:rgba(255,255,255,0.55);margin-top:4px;}
+
+.progress-bar{display:none;margin-top:16px;width:280px;}
+.progress-bar.show{display:block;}
+.pb-label{font-size:12px;color:var(--cream3);display:flex;justify-content:space-between;margin-bottom:6px;}
+.pb-track{height:3px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;}
+.pb-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--purple2));border-radius:2px;width:0%;transition:width 0.3s ease;}
+
+.steps{display:none;flex-direction:column;gap:4px;margin-top:12px;width:280px;}
+.steps.show{display:flex;}
+.step-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--cream3);padding:5px 9px;border-radius:6px;background:rgba(255,255,255,0.02);}
+.step-row.active{color:var(--purple2);background:rgba(168,85,247,0.08);}
+.step-row.done{color:rgba(52,211,153,0.8);background:rgba(52,211,153,0.04);}
+
+.export-panel{display:none;margin-top:20px;width:280px;}
+.export-panel.show{display:block;}
+.export-title{font-size:10px;font-weight:500;letter-spacing:0.8px;text-transform:uppercase;color:var(--cream3);margin-bottom:10px;text-align:center;}
+.export-btns{display:flex;gap:7px;}
+.export-btn{flex:1;padding:10px;border-radius:var(--rs);border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.eb-video{background:var(--purple);color:white;}
+.eb-video:hover{background:#6D28D9;}
+.eb-img{background:rgba(201,148,42,0.15);color:var(--gold);border:1px solid rgba(201,148,42,0.25);}
+.eb-img:hover{background:rgba(201,148,42,0.25);}
+.export-note{font-size:10px;color:rgba(240,234,248,0.25);text-align:center;margin-top:7px;}
+
+.toast{position:fixed;bottom:24px;right:24px;background:rgba(124,58,237,0.95);color:white;padding:10px 16px;border-radius:var(--rs);font-size:13px;font-weight:500;display:none;align-items:center;gap:7px;box-shadow:0 8px 24px rgba(0,0,0,0.4);z-index:999;max-width:320px;}
+.toast.show{display:flex;}
+
+@media(max-width:768px){
+  .main{grid-template-columns:1fr;}
+  .right-panel{padding:20px;}
+  nav{padding:14px 20px;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    <div class="logo-dot">🐾</div>
+    Any<em>Pet</em>
+  </div>
+  <div class="nav-tag">动态壁纸工坊</div>
+  <div class="nav-status">
+    <div class="status-dot"></div>
+    AI 服务正常
+  </div>
+</nav>
+
+<div class="main">
+
+  <!-- LEFT -->
+  <div class="left-panel">
+
+    <div>
+      <div class="sec-title">选择动物</div>
+      <div class="animal-grid" id="animalGrid">
+        <div class="ao sel" data-emoji="🐱" data-name="cat" onclick="selA(this)"><span class="em">🐱</span><div class="nm">猫</div></div>
+        <div class="ao" data-emoji="🐶" data-name="dog" onclick="selA(this)"><span class="em">🐶</span><div class="nm">狗</div></div>
+        <div class="ao" data-emoji="🐰" data-name="rabbit" onclick="selA(this)"><span class="em">🐰</span><div class="nm">兔子</div></div>
+        <div class="ao" data-emoji="🐹" data-name="hamster" onclick="selA(this)"><span class="em">🐹</span><div class="nm">仓鼠</div></div>
+        <div class="ao" data-emoji="🦜" data-name="parrot" onclick="selA(this)"><span class="em">🦜</span><div class="nm">鹦鹉</div></div>
+        <div class="ao" data-emoji="🦎" data-name="lizard" onclick="selA(this)"><span class="em">🦎</span><div class="nm">蜥蜴</div></div>
+        <div class="ao" data-emoji="🐢" data-name="turtle" onclick="selA(this)"><span class="em">🐢</span><div class="nm">龟</div></div>
+        <div class="ao" data-emoji="🐠" data-name="fish" onclick="selA(this)"><span class="em">🐠</span><div class="nm">观赏鱼</div></div>
+        <div class="ao" data-emoji="🐾" data-name="pet" onclick="selA(this)"><span class="em">🐾</span><div class="nm">其他</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sec-title">变装风格</div>
+      <div class="costume-list">
+        <div class="co sel" data-name="汉服宫装" data-prompt="wearing elegant Chinese hanfu royal costume, intricate gold embroidery, silk fabric, traditional Chinese imperial style, soft studio lighting" onclick="selC(this)"><span class="co-em">👘</span><div><div class="co-name">汉服宫装</div><div class="co-sub">古风 · 典雅</div></div></div>
+        <div class="co" data-name="宇航员" data-prompt="wearing NASA astronaut space suit with helmet visor open, space station background, zero gravity effect, highly detailed" onclick="selC(this)"><span class="co-em">🚀</span><div><div class="co-name">宇航员</div><div class="co-sub">科幻 · 探险</div></div></div>
+        <div class="co" data-name="骑士铠甲" data-prompt="wearing shining medieval knight armor, heroic fantasy pose, dramatic lighting, detailed metal texture" onclick="selC(this)"><span class="co-em">⚔️</span><div><div class="co-name">骑士铠甲</div><div class="co-sub">中世纪 · 勇猛</div></div></div>
+        <div class="co" data-name="和风浴衣" data-prompt="wearing traditional Japanese yukata kimono with cherry blossom pattern, soft pink bokeh background, elegant pose" onclick="selC(this)"><span class="co-em">🌸</span><div><div class="co-name">和风浴衣</div><div class="co-sub">日式 · 清新</div></div></div>
+        <div class="co" data-name="绅士礼服" data-prompt="wearing Victorian gentleman black suit, white shirt, bow tie, top hat, elegant portrait style" onclick="selC(this)"><span class="co-em">🎩</span><div><div class="co-name">绅士礼服</div><div class="co-sub">复古 · 优雅</div></div></div>
+        <div class="co" data-name="皇家礼冠" data-prompt="wearing royal crown and luxurious royal robe with jewels, golden throne background, majestic portrait" onclick="selC(this)"><span class="co-em">👑</span><div><div class="co-name">皇家礼冠</div><div class="co-sub">奢华 · 尊贵</div></div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sec-title">上传宠物照片</div>
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" accept="image/*" id="fileInput" onchange="handleFile(event)">
+        <div style="font-size:26px;margin-bottom:7px;opacity:0.4;">📷</div>
+        <div class="upload-hint"><strong>点击上传照片</strong>JPG · PNG · WEBP</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sec-title">动态效果</div>
+      <div class="effect-grid" id="effectGrid">
+        <div class="ef sel" data-effect="particles" onclick="selE(this)">
+          <div class="ef-preview" style="background:#0a0818;"><canvas id="pv-particles" width="130" height="52"></canvas></div>
+          <div class="ef-label">✦ 粒子飘散</div>
+        </div>
+        <div class="ef" data-effect="aurora" onclick="selE(this)">
+          <div class="ef-preview" style="background:#060f06;"><canvas id="pv-aurora" width="130" height="52"></canvas></div>
+          <div class="ef-label">✦ 极光渐变</div>
+        </div>
+        <div class="ef" data-effect="neon" onclick="selE(this)">
+          <div class="ef-preview" style="background:#050510;"><canvas id="pv-neon" width="130" height="52"></canvas></div>
+          <div class="ef-label">✦ 霓虹光晕</div>
+        </div>
+        <div class="ef" data-effect="stars" onclick="selE(this)">
+          <div class="ef-preview" style="background:#020208;"><canvas id="pv-stars" width="130" height="52"></canvas></div>
+          <div class="ef-label">✦ 星空闪烁</div>
+        </div>
+        <div class="ef" data-effect="ripple" onclick="selE(this)">
+          <div class="ef-preview" style="background:#020f0a;"><canvas id="pv-ripple" width="130" height="52"></canvas></div>
+          <div class="ef-label">✦ 涟漪扩散</div>
+        </div>
+        <div class="ef" data-effect="glitch" onclick="selE(this)">
+          <div class="ef-preview" style="background:#080508;"><canvas id="pv-glitch" width="130" height="52"></canvas></div>
+          <div class="ef-label">✦ 故障艺术</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="gen-btn" id="genBtn" onclick="startGenerate()">✦ 生成动态壁纸</button>
+
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right-panel">
+    <div style="font-size:10px;font-weight:500;letter-spacing:0.8px;text-transform:uppercase;color:rgba(240,234,248,0.25);margin-bottom:18px;">实时预览</div>
+
+    <div class="canvas-wrap">
+      <canvas id="wallpaperCanvas" width="1080" height="1920"></canvas>
+      <div class="clock-overlay">
+        <div class="clock-time" id="clockTime">17:08</div>
+        <div class="clock-date" id="clockDate">星期五 · 5月15日</div>
+      </div>
+    </div>
+
+    <div class="progress-bar" id="pb">
+      <div class="pb-label"><span id="pbMsg">准备中…</span><span id="pbPct">0%</span></div>
+      <div class="pb-track"><div class="pb-fill" id="pbFill"></div></div>
+    </div>
+
+    <div class="steps" id="steps">
+      <div class="step-row" id="s1"><span>🔍</span> 解析宠物特征</div>
+      <div class="step-row" id="s2"><span>🎨</span> AI 生成变装形象</div>
+      <div class="step-row" id="s3"><span>✨</span> 叠加动态特效</div>
+      <div class="step-row" id="s4"><span>📱</span> 渲染手机壁纸</div>
+    </div>
+
+    <div class="export-panel" id="exportPanel">
+      <div class="export-title">导出壁纸</div>
+      <div class="export-btns">
+        <button class="export-btn eb-video" onclick="exportVideo()">▶ 导出视频</button>
+        <button class="export-btn eb-img" onclick="exportImg()">↓ 静图 PNG</button>
+      </div>
+      <div class="export-note">视频可直接设为 Android 动态壁纸</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"><span id="toastMsg"></span></div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────
+let animal = { emoji:'🐱', name:'cat' };
+let costume = { name:'汉服宫装', prompt:'wearing elegant Chinese hanfu royal costume, intricate gold embroidery, silk fabric, traditional Chinese imperial style' };
+let effect = 'particles';
+let uploadedBase64 = null;
+let petImg = null;
+let isGen = false;
+let raf = null;
+let particles=[], stars=[], ripples=[], auroraHue=0, neonPulse=0, glitchT=0;
+
+const canvas = document.getElementById('wallpaperCanvas');
+const ctx = canvas.getContext('2d');
+
+// ── SELECTORS ──────────────────────────────────────────────
+function selA(el){ document.querySelectorAll('.ao').forEach(o=>o.classList.remove('sel')); el.classList.add('sel'); animal={emoji:el.dataset.emoji, name:el.dataset.name}; }
+function selC(el){ document.querySelectorAll('.co').forEach(o=>o.classList.remove('sel')); el.classList.add('sel'); costume={name:el.dataset.name, prompt:el.dataset.prompt}; }
+function selE(el){ document.querySelectorAll('.ef').forEach(o=>o.classList.remove('sel')); el.classList.add('sel'); effect=el.dataset.effect; initFx(); }
+
+// ── UPLOAD ─────────────────────────────────────────────────
+function handleFile(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    uploadedBase64=ev.target.result;
+    const z=document.getElementById('uploadZone');
+    z.classList.add('has-img');
+    z.innerHTML=`<img class="upload-preview" src="${ev.target.result}"><button class="upload-change" onclick="resetUpload()">↺ 更换照片</button>`;
+    document.getElementById('exportPanel').classList.remove('show');
+    petImg=null;
+  };
+  reader.readAsDataURL(file);
+}
+function resetUpload(){
+  uploadedBase64=null; petImg=null;
+  const z=document.getElementById('uploadZone');
+  z.classList.remove('has-img');
+  z.innerHTML=`<input type="file" accept="image/*" id="fileInput" onchange="handleFile(event)"><div style="font-size:26px;margin-bottom:7px;opacity:0.4;">📷</div><div class="upload-hint"><strong>点击上传照片</strong>JPG · PNG · WEBP</div>`;
+  document.getElementById('exportPanel').classList.remove('show');
+}
+
+// ── CLOCK ──────────────────────────────────────────────────
+function tick(){
+  const n=new Date(), h=String(n.getHours()).padStart(2,'0'), m=String(n.getMinutes()).padStart(2,'0');
+  document.getElementById('clockTime').textContent=h+':'+m;
+  const days=['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+  document.getElementById('clockDate').textContent=days[n.getDay()]+' · '+(n.getMonth()+1)+'月'+n.getDate()+'日';
+}
+tick(); setInterval(tick,10000);
+
+// ── GENERATE ───────────────────────────────────────────────
+async function startGenerate(){
+  if(isGen) return;
+  if(!uploadedBase64){ showToast('请先上传一张宠物照片'); return; }
+  isGen=true;
+  const btn=document.getElementById('genBtn');
+  btn.disabled=true; btn.innerHTML='<span class="spin">⟳</span> 生成中…';
+  document.getElementById('exportPanel').classList.remove('show');
+
+  const pb=document.getElementById('pb'), fill=document.getElementById('pbFill');
+  const pmsg=document.getElementById('pbMsg'), ppct=document.getElementById('pbPct');
+  const ss=document.getElementById('steps');
+  pb.classList.add('show'); ss.classList.add('show');
+
+  function prog(pct,msg){ fill.style.width=pct+'%'; ppct.textContent=pct+'%'; pmsg.textContent=msg; }
+  function step(n){ for(let i=1;i<=4;i++){ const el=document.getElementById('s'+i); el.classList.remove('active','done'); if(i<n) el.classList.add('done'); if(i===n) el.classList.add('active'); } }
+
+  try {
+    step(1); prog(10,'解析宠物特征…');
+    await wait(700);
+
+    step(2); prog(25,'AI 生成变装形象（约 20~40 秒）…');
+
+    // 调用后端 API（解决 CORS）
+    const prompt = `A adorable ${animal.name} ${costume.prompt}, cute animal portrait, highly detailed fur/feathers, professional photography style, clean background, 4k quality, digital art`;
+    const resp = await fetch('/api/generate', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ prompt })
+    });
+
+    if(!resp.ok){
+      const err=await resp.json();
+      throw new Error(err.error||'API 请求失败');
+    }
+
+    const data = await resp.json();
+    const imgUrl = data.output;
+
+    prog(60,'加载生成图像…');
+    petImg = await loadImg(imgUrl);
+
+    step(3); prog(75,'叠加动态特效…');
+    await wait(500);
+    initFx();
+
+    step(4); prog(90,'渲染壁纸…');
+    await wait(400);
+
+    startAnim();
+    prog(100,'完成！'); step(5);
+    await wait(600);
+
+    pb.classList.remove('show'); ss.classList.remove('show');
+    document.getElementById('exportPanel').classList.add('show');
+    showToast('✦ 壁纸生成成功！点击导出');
+
+  } catch(err){
+    pb.classList.remove('show'); ss.classList.remove('show');
+    showToast('❌ 失败：'+err.message);
+    console.error(err);
+  }
+
+  btn.disabled=false; btn.innerHTML='✦ 重新生成'; isGen=false;
+}
+
+// ── REPLICATE POLLING (fallback) ───────────────────────────
+async function loadImg(src){
+  return new Promise((res,rej)=>{
+    const img=new Image(); img.crossOrigin='anonymous';
+    img.onload=()=>res(img);
+    img.onerror=()=>rej(new Error('图像加载失败'));
+    img.src=src;
+  });
+}
+
+// ── ANIMATION ──────────────────────────────────────────────
+function initFx(){
+  const W=canvas.width, H=canvas.height;
+  particles=[]; stars=[]; ripples=[];
+  if(effect==='particles'){ for(let i=0;i<80;i++) particles.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*1.5,vy:-Math.random()*2-.5,size:Math.random()*4+1,color:['#a78bfa','#60a5fa','#f472b6','#34d399','#fbbf24'][Math.floor(Math.random()*5)],life:Math.random()}); }
+  if(effect==='stars'){ for(let i=0;i<150;i++) stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*3+.5,phase:Math.random()*Math.PI*2,speed:Math.random()*.03+.01}); }
+  if(effect==='ripple'){ for(let i=0;i<3;i++) ripples.push({r:W*.3*i,maxR:W*.85,speed:3+i}); }
+}
+
+function startAnim(){
+  if(raf) cancelAnimationFrame(raf);
+  function loop(){ drawFrame(); raf=requestAnimationFrame(loop); }
+  loop();
+}
+
+function drawFrame(){
+  const W=canvas.width, H=canvas.height, t=Date.now()/1000;
+  ctx.clearRect(0,0,W,H);
+  drawBg(W,H,t);
+
+  // pet image
+  if(petImg){
+    const sz=Math.min(W*.72,H*.52), px=(W-sz)/2, py=H*.2;
+    const fy=Math.sin(t*1.2)*20;
+    // glow
+    const grd=ctx.createRadialGradient(W/2,py+sz/2+fy,0,W/2,py+sz/2+fy,sz*.65);
+    grd.addColorStop(0,glowCol(.3)); grd.addColorStop(1,'transparent');
+    ctx.fillStyle=grd; ctx.fillRect(0,0,W,H);
+    // clip circle
+    ctx.save();
+    if(effect==='neon'){ctx.shadowColor='#a855f7';ctx.shadowBlur=50;}
+    if(effect==='glitch'&&glitchT%40<3){ctx.transform(1,0,0,1,(Math.random()-.5)*30,0);}
+    ctx.beginPath(); ctx.arc(W/2,py+sz/2+fy,sz/2,0,Math.PI*2); ctx.clip();
+    ctx.drawImage(petImg,px,py+fy,sz,sz);
+    ctx.restore();
+    // costume emoji
+    const ce=document.querySelector('.co.sel .co-em');
+    if(ce){ ctx.font=`${Math.round(sz*.17)}px serif`; ctx.textAlign='center'; ctx.fillText(ce.textContent,W*.8,py+sz*.9+fy); }
+  } else {
+    const fy=Math.sin(Date.now()/1000*1.2)*20;
+    ctx.font=`${Math.round(canvas.width*.25)}px serif`; ctx.textAlign='center'; ctx.globalAlpha=.55;
+    ctx.fillText(animal.emoji,W/2,H*.5+fy); ctx.globalAlpha=1;
+  }
+
+  drawFg(W,H,t);
+  // vignette
+  const vig=ctx.createRadialGradient(W/2,H/2,H*.3,W/2,H/2,H*.75);
+  vig.addColorStop(0,'transparent'); vig.addColorStop(1,'rgba(0,0,0,.5)');
+  ctx.fillStyle=vig; ctx.fillRect(0,0,W,H);
+  glitchT++;
+}
+
+function drawBg(W,H,t){
+  if(effect==='particles'){
+    const g=ctx.createLinearGradient(0,0,W,H); g.addColorStop(0,'#0a0818'); g.addColorStop(.5,'#160c30'); g.addColorStop(1,'#0a1428');
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  } else if(effect==='aurora'){
+    auroraHue=(auroraHue+.25)%360;
+    const g=ctx.createLinearGradient(0,0,W,H);
+    g.addColorStop(0,`hsl(${auroraHue},60%,8%)`); g.addColorStop(.5,`hsl(${(auroraHue+50)%360},50%,12%)`); g.addColorStop(1,`hsl(${(auroraHue+90)%360},55%,6%)`);
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    for(let i=0;i<4;i++){ ctx.save(); ctx.globalAlpha=.1+i*.03; const gr=ctx.createLinearGradient(0,H*(.1+i*.2),W,H*(.3+i*.15)); gr.addColorStop(0,`hsla(${(auroraHue+i*35)%360},80%,60%,0)`); gr.addColorStop(.5,`hsla(${(auroraHue+i*35)%360},80%,60%,.5)`); gr.addColorStop(1,`hsla(${(auroraHue+i*35)%360},80%,60%,0)`); ctx.fillStyle=gr; ctx.fillRect(0,0,W,H); ctx.restore(); }
+  } else if(effect==='neon'){
+    ctx.fillStyle='#050510'; ctx.fillRect(0,0,W,H);
+    neonPulse=(neonPulse+.04)%(Math.PI*2);
+    const g=ctx.createRadialGradient(W/2,H*.45,0,W/2,H*.45,H*.45);
+    g.addColorStop(0,`rgba(168,85,247,${.1+Math.sin(neonPulse)*.05})`); g.addColorStop(1,'transparent');
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle='rgba(168,85,247,.06)'; ctx.lineWidth=1;
+    for(let x=0;x<W;x+=60){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for(let y=0;y<H;y+=60){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  } else if(effect==='stars'){
+    ctx.fillStyle='#020208'; ctx.fillRect(0,0,W,H);
+    const n=ctx.createRadialGradient(W*.3,H*.3,0,W*.3,H*.3,W*.5); n.addColorStop(0,'rgba(80,30,120,.18)'); n.addColorStop(1,'transparent'); ctx.fillStyle=n; ctx.fillRect(0,0,W,H);
+  } else if(effect==='ripple'){
+    const g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#020f0a'); g.addColorStop(1,'#010806'); ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  } else if(effect==='glitch'){
+    ctx.fillStyle='#080508'; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='rgba(255,255,255,.015)'; for(let y=0;y<H;y+=4) ctx.fillRect(0,y,W,2);
+  }
+}
+
+function drawFg(W,H,t){
+  if(effect==='particles'){
+    particles.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy; p.life+=.007;
+      if(p.life>1){p.life=0;p.x=Math.random()*W;p.y=H+10;}
+      const a=Math.sin(p.life*Math.PI)*.8;
+      ctx.save(); ctx.globalAlpha=a; ctx.fillStyle=p.color; ctx.shadowColor=p.color; ctx.shadowBlur=6;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill(); ctx.restore();
+    });
+  } else if(effect==='stars'){
+    stars.forEach(s=>{ s.phase+=s.speed; const a=(Math.sin(s.phase)+1)/2*.9+.1; ctx.save(); ctx.globalAlpha=a; ctx.fillStyle='white'; ctx.shadowColor='white'; ctx.shadowBlur=s.r*3; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill(); ctx.restore(); });
+  } else if(effect==='ripple'){
+    ripples.forEach(r=>{ r.r+=r.speed; if(r.r>r.maxR) r.r=0; const a=(1-r.r/r.maxR)*.45; ctx.save(); ctx.globalAlpha=a; ctx.strokeStyle='#34d399'; ctx.lineWidth=2; ctx.shadowColor='#34d399'; ctx.shadowBlur=10; ctx.beginPath(); ctx.arc(W/2,H*.47,r.r,0,Math.PI*2); ctx.stroke(); ctx.restore(); });
+  } else if(effect==='neon'){
+    const p=.4+Math.sin(neonPulse)*.2;
+    [[W*.1,H*.08],[W*.9,H*.08],[W*.1,H*.92],[W*.9,H*.92]].forEach(([cx,cy])=>{ ctx.save(); ctx.globalAlpha=p; ctx.strokeStyle='#a855f7'; ctx.lineWidth=1.5; ctx.shadowColor='#a855f7'; ctx.shadowBlur=18; ctx.beginPath(); ctx.arc(cx,cy,28,0,Math.PI*2); ctx.stroke(); ctx.restore(); });
+  } else if(effect==='glitch'&&glitchT%40<4){
+    for(let i=0;i<5;i++){ const y=Math.random()*H,h=Math.random()*25+4,sh=(Math.random()-.5)*50; ctx.save(); ctx.globalAlpha=.4; if(petImg) ctx.drawImage(canvas,0,y,W,h,sh,y,W,h); ctx.fillStyle=`rgba(255,0,80,.2)`; ctx.fillRect(sh,y,W,h); ctx.restore(); }
+  }
+}
+
+function glowCol(a){
+  const m={particles:`rgba(124,58,237,${a})`,aurora:`rgba(52,211,153,${a})`,neon:`rgba(168,85,247,${a})`,stars:`rgba(99,40,200,${a})`,ripple:`rgba(16,185,129,${a})`,glitch:`rgba(220,38,38,${a})`};
+  return m[effect]||`rgba(124,58,237,${a})`;
+}
+
+// ── EXPORT ─────────────────────────────────────────────────
+function exportImg(){
+  const a=document.createElement('a'); a.download='anypet-wallpaper.png'; a.href=canvas.toDataURL('image/png'); a.click();
+  showToast('✓ 静图已下载');
+}
+function exportVideo(){
+  if(!window.MediaRecorder){ showToast('请使用 Chrome 浏览器'); return; }
+  const chunks=[], stream=canvas.captureStream(30);
+  const mr=new MediaRecorder(stream,{mimeType:'video/webm;codecs=vp9'});
+  mr.ondataavailable=e=>{ if(e.data.size>0) chunks.push(e.data); };
+  mr.onstop=()=>{ const b=new Blob(chunks,{type:'video/webm'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download='anypet-wallpaper.webm'; a.click(); showToast('✓ 视频已下载！Android 可直接设为动态壁纸'); };
+  mr.start(); showToast('⏺ 录制 5 秒中…');
+  setTimeout(()=>mr.stop(),5000);
+}
+
+// ── PREVIEW CANVASES ───────────────────────────────────────
+function runPrev(id,fn){
+  const c=document.getElementById('pv-'+id); if(!c) return;
+  const cx=c.getContext('2d'); let s=null;
+  function fr(ts){ if(!s)s=ts; cx.clearRect(0,0,c.width,c.height); cx.globalAlpha=1; cx.shadowBlur=0; cx.textAlign='center'; fn(cx,c.width,c.height,(ts-s)/1000); requestAnimationFrame(fr); }
+  requestAnimationFrame(fr);
+}
+const pvAnimal='🐱';
+runPrev('particles',(cx,W,H,t)=>{ cx.fillStyle='#0a0818';cx.fillRect(0,0,W,H);const cols=['#a78bfa','#60a5fa','#f472b6','#34d399'];for(let i=0;i<10;i++){const x=(i*37+t*30)%W,y=H-(t*35+i*18)%H;cx.globalAlpha=.7;cx.fillStyle=cols[i%4];cx.shadowColor=cols[i%4];cx.shadowBlur=4;cx.beginPath();cx.arc(x,y,2,0,Math.PI*2);cx.fill();}cx.globalAlpha=1;cx.font='18px serif';cx.fillText(pvAnimal,W/2,H/2+6); });
+runPrev('aurora',(cx,W,H,t)=>{ const h=(t*25)%360;const bg=cx.createLinearGradient(0,0,W,H);bg.addColorStop(0,`hsl(${h},60%,10%)`);bg.addColorStop(1,`hsl(${(h+80)%360},55%,8%)`);cx.fillStyle=bg;cx.fillRect(0,0,W,H);cx.globalAlpha=.25;cx.fillStyle=`hsl(${h},80%,60%)`;cx.fillRect(0,H*.3,W,H*.2);cx.globalAlpha=1;cx.font='18px serif';cx.fillText('🐹',W/2,H/2+6); });
+runPrev('neon',(cx,W,H,t)=>{ cx.fillStyle='#050510';cx.fillRect(0,0,W,H);const p=.5+Math.sin(t*3)*.3;cx.globalAlpha=p*.15;cx.fillStyle='#a855f7';cx.beginPath();cx.arc(W/2,H/2,H*.35,0,Math.PI*2);cx.fill();cx.globalAlpha=p;cx.strokeStyle='#a855f7';cx.lineWidth=1.5;cx.shadowColor='#a855f7';cx.shadowBlur=8;cx.beginPath();cx.arc(W/2,H/2,H*.35,0,Math.PI*2);cx.stroke();cx.globalAlpha=1;cx.font='16px serif';cx.fillText('🐰',W/2,H/2+5); });
+runPrev('stars',(cx,W,H,t)=>{ cx.fillStyle='#020208';cx.fillRect(0,0,W,H);for(let i=0;i<18;i++){const x=(i*31+7)%W,y=(i*17+3)%H,a=.3+Math.abs(Math.sin(t*2+i))*.7;cx.globalAlpha=a;cx.fillStyle='white';cx.shadowColor='white';cx.shadowBlur=3;cx.beginPath();cx.arc(x,y,1.2,0,Math.PI*2);cx.fill();}cx.globalAlpha=1;cx.font='16px serif';cx.fillText('🦜',W/2,H/2+5); });
+runPrev('ripple',(cx,W,H,t)=>{ cx.fillStyle='#020f0a';cx.fillRect(0,0,W,H);for(let i=0;i<3;i++){const r=(t*35+i*18)%60+5,a=(1-r/65)*.6;cx.globalAlpha=a;cx.strokeStyle='#34d399';cx.lineWidth=1.5;cx.shadowColor='#34d399';cx.shadowBlur=6;cx.beginPath();cx.arc(W/2,H/2,r,0,Math.PI*2);cx.stroke();}cx.globalAlpha=1;cx.font='16px serif';cx.fillText('🦎',W/2,H/2+5); });
+runPrev('glitch',(cx,W,H,t)=>{ cx.fillStyle='#080508';cx.fillRect(0,0,W,H);cx.font='16px serif';cx.globalAlpha=1;cx.fillText('🐶',W/2,H/2+5);if(Math.floor(t*4)%6===0){cx.globalAlpha=.4;cx.fillStyle='rgba(255,0,80,.3)';cx.fillRect(0,H*.3+Math.random()*10,W,7);} });
+
+// ── INIT DEFAULT ANIM ──────────────────────────────────────
+initFx();
+function defaultLoop(){ drawFrame(); raf=requestAnimationFrame(defaultLoop); }
+defaultLoop();
+
+// ── UTILS ──────────────────────────────────────────────────
+function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
+function showToast(msg){ const t=document.getElementById('toast'); document.getElementById('toastMsg').textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3800); }
+</script>
+</body>
+</html>
