@@ -313,12 +313,12 @@ async function startGenerate(){
 
     step(2); prog(25,'AI 生成变装形象（约 20~40 秒）…');
 
-    // 调用后端 API（解决 CORS）
-    const prompt = `A adorable ${animal.name} ${costume.prompt}, cute animal portrait, highly detailed fur/feathers, professional photography style, clean background, 4k quality, digital art`;
+    // 调用后端 API — IP-Adapter 保留宠物特征
+    const prompt = `${costume.prompt}, highly detailed, professional portrait, 4k quality, soft lighting`;
     const resp = await fetch('/api/generate', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ prompt })
+      body: JSON.stringify({ prompt, image: uploadedBase64, animal: animal.name })
     });
 
     if(!resp.ok){
