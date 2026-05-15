@@ -339,6 +339,8 @@ async function startGenerate(){
     step(4); prog(90,'渲染壁纸…');
     await wait(400);
 
+    // 验证 petImg 确实有值
+    console.log('petImg loaded:', petImg ? petImg.width+'x'+petImg.height : 'NULL');
     startAnim();
     prog(100,'完成！'); step(5);
     await wait(600);
@@ -391,49 +393,49 @@ function drawFrame(){
   const W=canvas.width, H=canvas.height, t=Date.now()/1000;
   ctx.clearRect(0,0,W,H);
 
-  if(petImg){
-    // ── FULLSCREEN pet image as wallpaper background ──
-    // Cover fill: scale to fill entire canvas
-    const scale=Math.max(W/petImg.width, H/petImg.height);
-    const iw=petImg.width*scale, ih=petImg.height*scale;
-    const ix=(W-iw)/2, iy=(H-ih)/2;
+  // Always draw background first
+  drawBg(W,H,t);
 
-    // Subtle float
-    const fy=Math.sin(t*0.8)*12;
+  if(petImg && petImg.complete && petImg.naturalWidth > 0){
+    // Pet image fills center of canvas
+    const scale = Math.max(W/petImg.naturalWidth, H/petImg.naturalHeight);
+    const iw = petImg.naturalWidth * scale;
+    const ih = petImg.naturalHeight * scale;
+    const ix = (W - iw) / 2;
+    const iy = (H - ih) / 2;
+    const floatY = Math.sin(t * 0.8) * 10;
 
     ctx.save();
-    if(effect==='glitch'&&glitchT%40<3){ ctx.transform(1,0,0,1,(Math.random()-.5)*20,0); }
-    ctx.drawImage(petImg, ix, iy+fy, iw, ih);
+    ctx.globalAlpha = 1;
+    ctx.drawImage(petImg, ix, iy + floatY, iw, ih);
     ctx.restore();
 
-    // Dark gradient overlay at bottom for clock readability
-    const grad=ctx.createLinearGradient(0,H*0.55,0,H);
-    grad.addColorStop(0,'transparent');
-    grad.addColorStop(1,'rgba(0,0,0,0.75)');
-    ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
+    // Dark overlay at bottom for clock
+    const grad = ctx.createLinearGradient(0, H*0.6, 0, H);
+    grad.addColorStop(0, 'transparent');
+    grad.addColorStop(1, 'rgba(0,0,0,0.8)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
 
-    // Effect overlay on top
-    drawBg(W,H,t);
+    // Effect particles on top
     drawFg(W,H,t);
 
-    // Costume emoji badge top-right
-    const ce=document.querySelector('.co.sel .co-em');
+    // Costume emoji top right
+    const ce = document.querySelector('.co.sel .co-em');
     if(ce){
-      const badgeSize=Math.round(W*0.14);
-      ctx.font=`${badgeSize}px serif`;
-      ctx.textAlign='center';
-      ctx.shadowColor='rgba(0,0,0,0.5)'; ctx.shadowBlur=10;
-      ctx.fillText(ce.textContent, W*0.82, H*0.12);
+      ctx.font = Math.round(W*0.12)+'px serif';
+      ctx.textAlign = 'right';
+      ctx.shadowColor='rgba(0,0,0,0.6)'; ctx.shadowBlur=8;
+      ctx.fillText(ce.textContent, W-20, 80);
       ctx.shadowBlur=0;
     }
 
   } else {
-    // No image yet — show effect background + emoji placeholder
-    drawBg(W,H,t);
-    const fy=Math.sin(t*1.2)*20;
-    ctx.font=`${Math.round(W*0.25)}px serif`;
-    ctx.textAlign='center'; ctx.globalAlpha=.55;
-    ctx.fillText(animal.emoji,W/2,H*.5+fy);
+    // No pet image — show animal emoji placeholder
+    const floatY = Math.sin(t*1.2)*20;
+    ctx.font = Math.round(W*0.25)+'px serif';
+    ctx.textAlign='center'; ctx.globalAlpha=0.6;
+    ctx.fillText(animal.emoji, W/2, H*0.45+floatY);
     ctx.globalAlpha=1;
     drawFg(W,H,t);
 
