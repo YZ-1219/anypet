@@ -1,4 +1,4 @@
-// api/generate.js — IP-Adapter版本，真正读取宠物照片特征
+// api/generate.js — 返回 base64 图片，解决跨域问题
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -12,31 +12,42 @@ export default async function handler(req, res) {
 
   try {
     const { prompt, image, animal } = req.body;
-    if (!prompt) return res.status(400).json({ error: '缺少 prompt' });
 
-    let outputUrl;
+    const fullPrompt = image
+      ? `${animal || 'cute pet'} ${prompt}, photorealistic, highly detailed fur, professional studio lighting, 4k`
+      : `cute ${animal || 'pet'} ${prompt}, photorealistic, professional photo, 4k`;
+
+    let imageUrl;
 
     if (image) {
-      // 有照片：用 img2img 保留宠物外形，叠加变装风格
-      const imageData = image.startsWith('data:') ? image : `data:image/jpeg;base64,${image}`;
-      const fullPrompt = `${animal || 'cute pet'} ${prompt}, photorealistic, highly detailed fur and features, professional studio lighting, 4k`;
-      outputUrl = await runImg2Img(apiKey, imageData, fullPrompt);
+      // img2img — 保留宠物外形
+      imageUrl = await runImg2Img(apiKey, image, fullPrompt);
     } else {
-      // 没照片：纯文字生成
-      outputUrl = await runTextToImg(apiKey, `cute ${animal || 'pet'} ${prompt}`);
+      // 纯文字生成
+      imageUrl = await runFlux(apiKey, fullPrompt);
     }
 
-    return res.status(200).json({ output: outputUrl });
+    if (!imageUrl) throw new Error('未获得图片 URL');
+
+    // 把图片下载下来转成 base64，解决前端跨域问题
+    const imgResp = await fetch(imageUrl);
+    if (!imgResp.ok) throw new Error('图片下载失败');
+    const buffer = await imgResp.arrayBuffer();
+    const base64 = Buffer.from(buffer).toString('base64');
+    const contentType = imgResp.headers.get('content-type') || 'image/jpeg';
+
+    return res.status(200).json({
+      output: `data:${contentType};base64,${base64}`
+    });
 
   } catch (err) {
-    console.error('Generate error:', err);
+    console.error(err);
     return res.status(500).json({ error: err.message });
   }
 }
 
 async function runImg2Img(apiKey, imageData, prompt) {
-  // 用 img2img：prompt_strength 0.55 = 保留55%原图特征，改变45%风格
-  const response = await fetch(
+  const resp = await fetch(
     'https://api.replicate.com/v1/models/stability-ai/stable-diffusion-img2img/predictions',
     {
       method: 'POST',
@@ -48,37 +59,37 @@ async function runImg2Img(apiKey, imageData, prompt) {
       body: JSON.stringify({
         input: {
           image: imageData,
-          prompt: prompt,
-          negative_prompt: 'blurry, low quality, deformed, ugly, human face, extra limbs, watermark',
+          prompt,
+          negative_prompt: 'blurry, low quality, deformed, human face, text, watermark',
           prompt_strength: 0.60,
           num_inference_steps: 30,
           guidance_scale: 7.5,
           width: 768,
           height: 768,
-          scheduler: 'DPMSolverMultistep',
         }
       })
     }
   );
 
-  if (!response.ok) {
-    const errData = await response.json().catch(() => ({}));
-    console.log('img2img failed:', errData);
-    // fallback to flux
-    return await runTextToImg(apiKey, prompt);
+  const data = await resp.json();
+  if (!resp.ok) {
+    console.log('img2img error:', data);
+    return await runFlux(apiKey, prompt);
   }
 
-  const data = await response.json();
+  let result = data;
   if (data.status === 'starting' || data.status === 'processing') {
-    return await poll(apiKey, data.id);
+    result = await poll(apiKey, data.id);
+    return result;
   }
+
   const out = data.output;
   if (out) return Array.isArray(out) ? out[0] : out;
-  return await runTextToImg(apiKey, prompt);
+  return await runFlux(apiKey, prompt);
 }
 
-async function runTextToImg(apiKey, prompt) {
-  const response = await fetch(
+async function runFlux(apiKey, prompt) {
+  const resp = await fetch(
     'https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions',
     {
       method: 'POST',
@@ -88,20 +99,12 @@ async function runTextToImg(apiKey, prompt) {
         'Prefer': 'wait',
       },
       body: JSON.stringify({
-        input: {
-          prompt: prompt,
-          width: 768, height: 768,
-          num_outputs: 1,
-          num_inference_steps: 4,
-          guidance_scale: 0,
-        }
+        input: { prompt, width: 768, height: 768, num_outputs: 1, num_inference_steps: 4, guidance_scale: 0 }
       })
     }
   );
-  const data = await response.json();
-  if (data.status === 'starting' || data.status === 'processing') {
-    return await poll(apiKey, data.id);
-  }
+  const data = await resp.json();
+  if (data.status === 'starting' || data.status === 'processing') return await poll(apiKey, data.id);
   return data.output?.[0];
 }
 
@@ -112,10 +115,8 @@ async function poll(apiKey, id) {
       headers: { 'Authorization': `Bearer ${apiKey}` }
     });
     const data = await r.json();
-    if (data.status === 'succeeded') {
-      return Array.isArray(data.output) ? data.output[0] : data.output;
-    }
+    if (data.status === 'succeeded') return Array.isArray(data.output) ? data.output[0] : data.output;
     if (data.status === 'failed') throw new Error(data.error || '生成失败');
   }
-  throw new Error('超时，请重试');
+  throw new Error('超时');
 }
