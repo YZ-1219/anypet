@@ -384,37 +384,59 @@ function startAnim(){
 function drawFrame(){
   const W=canvas.width, H=canvas.height, t=Date.now()/1000;
   ctx.clearRect(0,0,W,H);
-  drawBg(W,H,t);
 
-  // pet image
   if(petImg){
-    const sz=Math.min(W*.72,H*.52), px=(W-sz)/2, py=H*.2;
-    const fy=Math.sin(t*1.2)*20;
-    // glow
-    const grd=ctx.createRadialGradient(W/2,py+sz/2+fy,0,W/2,py+sz/2+fy,sz*.65);
-    grd.addColorStop(0,glowCol(.3)); grd.addColorStop(1,'transparent');
-    ctx.fillStyle=grd; ctx.fillRect(0,0,W,H);
-    // clip circle
+    // ── FULLSCREEN pet image as wallpaper background ──
+    // Cover fill: scale to fill entire canvas
+    const scale=Math.max(W/petImg.width, H/petImg.height);
+    const iw=petImg.width*scale, ih=petImg.height*scale;
+    const ix=(W-iw)/2, iy=(H-ih)/2;
+
+    // Subtle float
+    const fy=Math.sin(t*0.8)*12;
+
     ctx.save();
-    if(effect==='neon'){ctx.shadowColor='#a855f7';ctx.shadowBlur=50;}
-    if(effect==='glitch'&&glitchT%40<3){ctx.transform(1,0,0,1,(Math.random()-.5)*30,0);}
-    ctx.beginPath(); ctx.arc(W/2,py+sz/2+fy,sz/2,0,Math.PI*2); ctx.clip();
-    ctx.drawImage(petImg,px,py+fy,sz,sz);
+    if(effect==='glitch'&&glitchT%40<3){ ctx.transform(1,0,0,1,(Math.random()-.5)*20,0); }
+    ctx.drawImage(petImg, ix, iy+fy, iw, ih);
     ctx.restore();
-    // costume emoji
+
+    // Dark gradient overlay at bottom for clock readability
+    const grad=ctx.createLinearGradient(0,H*0.55,0,H);
+    grad.addColorStop(0,'transparent');
+    grad.addColorStop(1,'rgba(0,0,0,0.75)');
+    ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
+
+    // Effect overlay on top
+    drawBg(W,H,t);
+    drawFg(W,H,t);
+
+    // Costume emoji badge top-right
     const ce=document.querySelector('.co.sel .co-em');
-    if(ce){ ctx.font=`${Math.round(sz*.17)}px serif`; ctx.textAlign='center'; ctx.fillText(ce.textContent,W*.8,py+sz*.9+fy); }
+    if(ce){
+      const badgeSize=Math.round(W*0.14);
+      ctx.font=`${badgeSize}px serif`;
+      ctx.textAlign='center';
+      ctx.shadowColor='rgba(0,0,0,0.5)'; ctx.shadowBlur=10;
+      ctx.fillText(ce.textContent, W*0.82, H*0.12);
+      ctx.shadowBlur=0;
+    }
+
   } else {
-    const fy=Math.sin(Date.now()/1000*1.2)*20;
-    ctx.font=`${Math.round(canvas.width*.25)}px serif`; ctx.textAlign='center'; ctx.globalAlpha=.55;
-    ctx.fillText(animal.emoji,W/2,H*.5+fy); ctx.globalAlpha=1;
+    // No image yet — show effect background + emoji placeholder
+    drawBg(W,H,t);
+    const fy=Math.sin(t*1.2)*20;
+    ctx.font=`${Math.round(W*0.25)}px serif`;
+    ctx.textAlign='center'; ctx.globalAlpha=.55;
+    ctx.fillText(animal.emoji,W/2,H*.5+fy);
+    ctx.globalAlpha=1;
+    drawFg(W,H,t);
+
+    // bottom gradient
+    const grad=ctx.createLinearGradient(0,H*0.65,0,H);
+    grad.addColorStop(0,'transparent'); grad.addColorStop(1,'rgba(0,0,0,0.7)');
+    ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
   }
 
-  drawFg(W,H,t);
-  // vignette
-  const vig=ctx.createRadialGradient(W/2,H/2,H*.3,W/2,H/2,H*.75);
-  vig.addColorStop(0,'transparent'); vig.addColorStop(1,'rgba(0,0,0,.5)');
-  ctx.fillStyle=vig; ctx.fillRect(0,0,W,H);
   glitchT++;
 }
 
