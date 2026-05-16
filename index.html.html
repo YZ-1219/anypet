@@ -6,127 +6,168 @@
 <title>AnyPet — 宠物壁纸工坊</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#06040A;--cream:#EDE8F8;--cream2:rgba(237,232,248,0.6);--cream3:rgba(237,232,248,0.3);--gold:#C9942A;--purple:#7C3AED;--purple2:#A855F7;--border:rgba(237,232,248,0.07);--border2:rgba(237,232,248,0.14);--r:14px;--rs:8px;}
+:root{--ink:#06040A;--cream:#EDE8F8;--cream2:rgba(237,232,248,0.65);--cream3:rgba(237,232,248,0.3);--gold:#C9942A;--purple:#7C3AED;--purple2:#A855F7;--border:rgba(237,232,248,0.07);--border2:rgba(237,232,248,0.13);--r:12px;--rs:8px;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'DM Sans',sans-serif;background:var(--ink);color:var(--cream);min-height:100vh;overflow-x:hidden;}
-nav{display:flex;align-items:center;padding:14px 32px;border-bottom:1px solid var(--border);background:rgba(6,4,10,0.92);backdrop-filter:blur(16px);position:sticky;top:0;z-index:200;}
-.logo{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;display:flex;align-items:center;gap:8px;}
-.logo-dot{width:26px;height:26px;border-radius:7px;background:var(--purple);display:flex;align-items:center;justify-content:center;font-size:13px;}
+nav{display:flex;align-items:center;padding:13px 28px;border-bottom:1px solid var(--border);background:rgba(6,4,10,0.94);backdrop-filter:blur(16px);position:sticky;top:0;z-index:200;}
+.logo{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;display:flex;align-items:center;gap:7px;}
+.logo-dot{width:24px;height:24px;border-radius:6px;background:var(--purple);display:flex;align-items:center;justify-content:center;font-size:12px;}
 .logo em{font-style:italic;color:var(--gold);}
-.nav-tag{margin-left:10px;font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--purple2);background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.2);padding:3px 9px;border-radius:20px;}
-.nav-r{margin-left:auto;font-size:12px;color:var(--cream3);display:flex;align-items:center;gap:6px;}
-.dot-live{width:6px;height:6px;border-radius:50%;background:#34d399;}
-.main{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 53px);}
-.lp{border-right:1px solid var(--border);padding:18px 14px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;}
-.sec-t{font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--cream3);margin-bottom:8px;display:flex;align-items:center;gap:5px;}
-.sec-t::before{content:'';width:12px;height:1px;background:var(--purple2);}
+.nav-tag{margin-left:9px;font-size:9px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--purple2);background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.2);padding:2px 8px;border-radius:20px;}
+.nav-r{margin-left:auto;font-size:11px;color:var(--cream3);display:flex;align-items:center;gap:5px;}
+.dot-g{width:5px;height:5px;border-radius:50%;background:#34d399;}
 
-.style-grid{display:flex;flex-direction:column;gap:6px;}
-.sc{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border2);border-radius:var(--rs);cursor:pointer;transition:all 0.15s;background:rgba(255,255,255,0.02);}
-.sc:hover{border-color:var(--purple2);background:rgba(168,85,247,0.08);}
-.sc.sel{border-color:var(--purple2);background:rgba(168,85,247,0.12);}
-.sc-icon{font-size:22px;flex-shrink:0;}
-.sc-name{font-size:12px;font-weight:500;color:var(--cream2);}
-.sc-desc{font-size:10px;color:var(--cream3);}
+.main{display:grid;grid-template-columns:290px 1fr;min-height:calc(100vh - 50px);}
+.lp{border-right:1px solid var(--border);padding:16px 12px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;}
+.sec-t{font-size:9px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--cream3);margin-bottom:7px;display:flex;align-items:center;gap:5px;}
+.sec-t::before{content:'';width:10px;height:1px;background:var(--purple2);}
+
+/* STYLE CARDS — 2-col grid with preview thumbnails */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.sc{border:1px solid var(--border2);border-radius:10px;overflow:hidden;cursor:pointer;transition:all 0.17s;background:rgba(255,255,255,0.02);position:relative;}
+.sc:hover{border-color:var(--purple2);transform:translateY(-2px);box-shadow:0 6px 20px rgba(124,58,237,0.2);}
+.sc.sel{border-color:var(--purple2);border-width:1.5px;box-shadow:0 0 16px rgba(124,58,237,0.3);}
+.sc-thumb{height:70px;display:flex;align-items:center;justify-content:center;font-size:30px;position:relative;overflow:hidden;}
+.sc-thumb canvas{position:absolute;inset:0;width:100%;height:100%;}
+.sc-info{padding:6px 7px;border-top:1px solid var(--border);}
+.sc-name{font-size:11px;font-weight:500;color:var(--cream2);margin-bottom:1px;}
+.sc-sub{font-size:9px;color:var(--cream3);}
 .sc.sel .sc-name{color:var(--purple2);}
+.sel-badge{position:absolute;top:5px;right:5px;width:16px;height:16px;background:var(--purple2);border-radius:50%;display:none;align-items:center;justify-content:center;font-size:9px;}
+.sc.sel .sel-badge{display:flex;}
 
-.how-box{background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.15);border-radius:var(--rs);padding:10px 12px;}
-.how-title{font-size:11px;font-weight:500;color:var(--purple2);margin-bottom:6px;}
-.how-step{font-size:11px;color:var(--cream3);margin-bottom:3px;display:flex;gap:6px;}
-.how-step span{color:var(--purple2);flex-shrink:0;}
-
-.uz{border:1.5px dashed var(--border2);border-radius:var(--r);min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:all 0.2s;background:rgba(255,255,255,0.01);text-align:center;}
+/* UPLOAD */
+.uz{border:1.5px dashed var(--border2);border-radius:var(--r);min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:all 0.2s;background:rgba(255,255,255,0.01);text-align:center;}
 .uz:hover{border-color:var(--purple2);background:rgba(168,85,247,0.06);}
 .uz.has{overflow:hidden;cursor:default;}
 .uz.has:hover{border-color:var(--border2);background:transparent;}
 .uz input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
 .uz.has input{display:none;}
-.up{width:100%;height:120px;object-fit:cover;display:block;}
-.uch{width:100%;padding:5px;background:rgba(255,255,255,0.04);border:none;border-top:1px solid var(--border);color:var(--cream3);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;}
-.uch:hover{background:rgba(255,255,255,0.08);}
-.uh{font-size:12px;color:var(--cream3);line-height:1.6;}
-.uh strong{display:block;color:var(--cream2);font-size:13px;margin-bottom:3px;}
+.up{width:100%;height:100px;object-fit:cover;display:block;}
+.uch{width:100%;padding:5px;background:rgba(255,255,255,0.04);border:none;border-top:1px solid var(--border);color:var(--cream3);font-size:10px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.uch:hover{background:rgba(255,255,255,0.07);}
+.uh{font-size:11px;color:var(--cream3);line-height:1.5;}
+.uh strong{display:block;color:var(--cream2);font-size:12px;margin-bottom:2px;}
 
-.gen-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--purple),#9333EA);color:white;border:none;border-radius:var(--rs);font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;}
-.gen-btn:hover:not(:disabled){filter:brightness(1.12);transform:translateY(-1px);}
+.gen-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--purple),#9333EA);color:white;border:none;border-radius:var(--rs);font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:7px;}
+.gen-btn:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px);}
 .gen-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .spin{display:inline-block;animation:spin 0.8s linear infinite;}
 
-.rp{display:flex;flex-direction:column;align-items:center;padding:24px 32px;}
-.canvas-wrap{width:280px;height:520px;border-radius:28px;border:2px solid rgba(255,255,255,0.08);overflow:hidden;position:relative;box-shadow:0 40px 80px rgba(0,0,0,0.8);background:#111;flex-shrink:0;}
+/* RIGHT */
+.rp{display:flex;flex-direction:column;align-items:center;padding:22px 28px;}
+.canvas-wrap{width:270px;height:500px;border-radius:26px;border:1.5px solid rgba(255,255,255,0.08);overflow:hidden;position:relative;box-shadow:0 40px 80px rgba(0,0,0,0.8);background:#0a0a0a;flex-shrink:0;}
 #wc{width:100%;height:100%;display:block;}
-.clock-ov{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);text-align:center;pointer-events:none;}
-.ck-t{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:600;color:white;text-shadow:0 2px 20px rgba(0,0,0,0.9);line-height:1;}
-.ck-d{font-size:12px;color:rgba(255,255,255,0.5);margin-top:3px;}
+.clk{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);text-align:center;pointer-events:none;}
+.ck-t{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:600;color:white;text-shadow:0 2px 20px rgba(0,0,0,0.9);line-height:1;}
+.ck-d{font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;}
 
-.pb{display:none;margin-top:14px;width:280px;}
+.pb{display:none;margin-top:12px;width:270px;}
 .pb.show{display:block;}
-.pb-row{display:flex;justify-content:space-between;font-size:11px;color:var(--cream3);margin-bottom:5px;}
-.pb-track{height:2px;background:rgba(255,255,255,0.07);border-radius:1px;overflow:hidden;}
-.pb-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--purple2));border-radius:1px;width:0%;transition:width 0.3s ease;}
+.pb-row{display:flex;justify-content:space-between;font-size:10px;color:var(--cream3);margin-bottom:5px;}
+.pb-track{height:2px;background:rgba(255,255,255,0.06);border-radius:1px;overflow:hidden;}
+.pb-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--purple2));border-radius:1px;width:0%;transition:width 0.35s ease;}
 
-.steps{display:none;flex-direction:column;gap:3px;margin-top:10px;width:280px;}
+.steps{display:none;flex-direction:column;gap:3px;margin-top:8px;width:270px;}
 .steps.show{display:flex;}
-.sr{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--cream3);padding:5px 8px;border-radius:5px;background:rgba(255,255,255,0.02);}
+.sr{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--cream3);padding:4px 7px;border-radius:4px;background:rgba(255,255,255,0.02);}
 .sr.active{color:var(--purple2);background:rgba(168,85,247,0.08);}
 .sr.done{color:rgba(52,211,153,0.8);background:rgba(52,211,153,0.04);}
 
-.exp{display:none;margin-top:16px;width:280px;}
+.exp{display:none;margin-top:14px;width:270px;}
 .exp.show{display:block;}
-.exp-t{font-size:10px;font-weight:500;letter-spacing:0.8px;text-transform:uppercase;color:var(--cream3);margin-bottom:8px;text-align:center;}
+.exp-t{font-size:9px;font-weight:500;letter-spacing:0.8px;text-transform:uppercase;color:var(--cream3);margin-bottom:7px;text-align:center;}
 .exp-btns{display:flex;gap:6px;}
-.eb{flex:1;padding:10px;border-radius:var(--rs);border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.eb{flex:1;padding:9px;border-radius:var(--rs);border:none;font-size:11px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:5px;}
 .eb-v{background:var(--purple);color:white;}
 .eb-v:hover{background:#6D28D9;}
-.eb-i{background:rgba(201,148,42,0.15);color:var(--gold);border:1px solid rgba(201,148,42,0.2);}
-.eb-i:hover{background:rgba(201,148,42,0.25);}
-.exp-note{font-size:10px;color:rgba(237,232,248,0.2);text-align:center;margin-top:6px;}
+.eb-i{background:rgba(201,148,42,0.14);color:var(--gold);border:1px solid rgba(201,148,42,0.2);}
+.eb-i:hover{background:rgba(201,148,42,0.22);}
+.exp-note{font-size:9px;color:rgba(237,232,248,0.18);text-align:center;margin-top:5px;}
 
-.toast{position:fixed;bottom:20px;right:20px;background:rgba(124,58,237,0.95);color:white;padding:10px 15px;border-radius:var(--rs);font-size:13px;font-weight:500;display:none;align-items:center;gap:6px;box-shadow:0 8px 24px rgba(0,0,0,0.4);z-index:999;max-width:320px;}
+.toast{position:fixed;bottom:18px;right:18px;background:rgba(124,58,237,0.95);color:white;padding:9px 14px;border-radius:var(--rs);font-size:12px;font-weight:500;display:none;align-items:center;gap:6px;box-shadow:0 8px 24px rgba(0,0,0,0.4);z-index:999;max-width:300px;}
 .toast.show{display:flex;}
-@media(max-width:768px){.main{grid-template-columns:1fr;}.rp{padding:16px;}nav{padding:12px 16px;}}
+@media(max-width:768px){.main{grid-template-columns:1fr;}.rp{padding:14px;}nav{padding:11px 14px;}}
 </style>
 </head>
 <body>
 <nav>
   <div class="logo"><div class="logo-dot">🐾</div>Any<em>Pet</em></div>
   <div class="nav-tag">壁纸工坊</div>
-  <div class="nav-r"><div class="dot-live"></div>AI 正常</div>
+  <div class="nav-r"><div class="dot-g"></div>AI 正常</div>
 </nav>
 <div class="main">
 <div class="lp">
 
-  <div class="how-box">
-    <div class="how-title">✦ 工作原理</div>
-    <div class="how-step"><span>1</span>AI 精准抠出宠物主体</div>
-    <div class="how-step"><span>2</span>原图背景转成动漫画风（构图不变）</div>
-    <div class="how-step"><span>3</span>真实宠物叠回动漫背景，粒子动态飘动</div>
-  </div>
-
   <div>
-    <div class="sec-t">动漫画风</div>
-    <div class="style-grid">
-      <div class="sc sel" data-s="anime" data-p="butterfly" onclick="selStyle(this)">
-        <div class="sc-icon">🎌</div>
-        <div><div class="sc-name">吉卜力动漫</div><div class="sc-desc">温暖色调 · 手绘质感 · 蝴蝶飘舞</div></div>
+    <div class="sec-t">选择风格</div>
+    <div class="sg" id="sg">
+
+      <div class="sc sel" data-s="3d_energy" onclick="selS(this)">
+        <div class="sel-badge">✓</div>
+        <div class="sc-thumb" style="background:linear-gradient(135deg,#0a0520,#1a0050);">
+          <canvas id="pv-energy" width="130" height="70"></canvas>
+        </div>
+        <div class="sc-info"><div class="sc-name">⚡ 能量光效</div><div class="sc-sub">3D渲染 · 闪电粒子</div></div>
       </div>
-      <div class="sc" data-s="cyberpunk" data-p="neon" onclick="selStyle(this)">
-        <div class="sc-icon">⚡</div>
-        <div><div class="sc-name">赛博朋克</div><div class="sc-desc">霓虹光效 · 雨夜反光 · 电光粒子</div></div>
+
+      <div class="sc" data-s="anime_ghibli" onclick="selS(this)">
+        <div class="sel-badge">✓</div>
+        <div class="sc-thumb" style="background:linear-gradient(135deg,#1a0a0a,#3d1a00);">
+          <canvas id="pv-ghibli" width="130" height="70"></canvas>
+        </div>
+        <div class="sc-info"><div class="sc-name">🎌 吉卜力</div><div class="sc-sub">手绘动漫 · 温暖光晕</div></div>
       </div>
-      <div class="sc" data-s="watercolor" data-p="petals" onclick="selStyle(this)">
-        <div class="sc-icon">🌸</div>
-        <div><div class="sc-name">水彩插画</div><div class="sc-desc">柔和色调 · 梦幻氛围 · 花瓣飘落</div></div>
+
+      <div class="sc" data-s="cyberpunk_neon" onclick="selS(this)">
+        <div class="sel-badge">✓</div>
+        <div class="sc-thumb" style="background:linear-gradient(135deg,#000510,#000030);">
+          <canvas id="pv-cyber" width="130" height="70"></canvas>
+        </div>
+        <div class="sc-info"><div class="sc-name">🌆 赛博霓虹</div><div class="sc-sub">霓虹光效 · 雨夜氛围</div></div>
       </div>
-      <div class="sc" data-s="fantasy" data-p="stars" onclick="selStyle(this)">
-        <div class="sc-icon">🔮</div>
-        <div><div class="sc-name">奇幻魔法</div><div class="sc-desc">魔法光效 · 星辰闪烁 · 流星划过</div></div>
+
+      <div class="sc" data-s="fantasy_magic" onclick="selS(this)">
+        <div class="sel-badge">✓</div>
+        <div class="sc-thumb" style="background:linear-gradient(135deg,#050a20,#0a0030);">
+          <canvas id="pv-fantasy" width="130" height="70"></canvas>
+        </div>
+        <div class="sc-info"><div class="sc-name">🔮 奇幻魔法</div><div class="sc-sub">魔法光环 · 符文粒子</div></div>
       </div>
-      <div class="sc" data-s="manga" data-p="neon" onclick="selStyle(this)">
-        <div class="sc-icon">📖</div>
-        <div><div class="sc-name">黑白漫画</div><div class="sc-desc">线稿质感 · 网点纹理 · 强烈对比</div></div>
+
+      <div class="sc" data-s="fire_ice" onclick="selS(this)">
+        <div class="sel-badge">✓</div>
+        <div class="sc-thumb" style="background:linear-gradient(135deg,#200500,#000a20);">
+          <canvas id="pv-fireice" width="130" height="70"></canvas>
+        </div>
+        <div class="sc-info"><div class="sc-name">🔥 冰火元素</div><div class="sc-sub">火焰与冰晶 · 双元素</div></div>
       </div>
+
+      <div class="sc" data-s="golden_hour" onclick="selS(this)">
+        <div class="sel-badge">✓</div>
+        <div class="sc-thumb" style="background:linear-gradient(135deg,#1a0800,#3d2000);">
+          <canvas id="pv-golden" width="130" height="70"></canvas>
+        </div>
+        <div class="sc-info"><div class="sc-name">🌅 黄金时刻</div><div class="sc-sub">暖阳光晕 · 电影感</div></div>
+      </div>
+
+      <div class="sc" data-s="ink_splash" onclick="selS(this)">
+        <div class="sel-badge">✓</div>
+        <div class="sc-thumb" style="background:linear-gradient(135deg,#05050a,#0a0a20);">
+          <canvas id="pv-ink" width="130" height="70"></canvas>
+        </div>
+        <div class="sc-info"><div class="sc-name">🖌️ 水墨泼彩</div><div class="sc-sub">国画意境 · 彩色爆炸</div></div>
+      </div>
+
+      <div class="sc" data-s="space_cosmic" onclick="selS(this)">
+        <div class="sel-badge">✓</div>
+        <div class="sc-thumb" style="background:linear-gradient(135deg,#020210,#050520);">
+          <canvas id="pv-space" width="130" height="70"></canvas>
+        </div>
+        <div class="sc-info"><div class="sc-name">🌌 星际宇宙</div><div class="sc-sub">星云银河 · 极光环绕</div></div>
+      </div>
+
     </div>
   </div>
 
@@ -134,8 +175,8 @@ nav{display:flex;align-items:center;padding:14px 32px;border-bottom:1px solid va
     <div class="sec-t">上传宠物照片</div>
     <div class="uz" id="uz">
       <input type="file" accept="image/*" id="fi" onchange="handleFile(event)">
-      <div style="font-size:24px;margin-bottom:7px;opacity:0.35;">📷</div>
-      <div class="uh"><strong>点击上传照片</strong>背景转动漫画风<br>宠物主体保持真实</div>
+      <div style="font-size:22px;margin-bottom:6px;opacity:0.35;">📷</div>
+      <div class="uh"><strong>点击上传照片</strong>整张图统一风格转换<br>宠物与背景融为一体</div>
     </div>
   </div>
 
@@ -144,12 +185,12 @@ nav{display:flex;align-items:center;padding:14px 32px;border-bottom:1px solid va
 </div>
 
 <div class="rp">
-  <div style="font-size:10px;font-weight:500;letter-spacing:0.8px;text-transform:uppercase;color:rgba(237,232,248,0.2);margin-bottom:16px;">实时预览</div>
+  <div style="font-size:9px;font-weight:500;letter-spacing:0.8px;text-transform:uppercase;color:rgba(237,232,248,0.18);margin-bottom:14px;">实时预览</div>
   <div class="canvas-wrap">
     <canvas id="wc" width="1080" height="1920"></canvas>
-    <div class="clock-ov">
+    <div class="clk">
       <div class="ck-t" id="ct">18:00</div>
-      <div class="ck-d" id="cd">星期五 · 5月16日</div>
+      <div class="ck-d" id="cd">星期六 · 5月17日</div>
     </div>
   </div>
   <div class="pb" id="pb">
@@ -157,10 +198,9 @@ nav{display:flex;align-items:center;padding:14px 32px;border-bottom:1px solid va
     <div class="pb-track"><div class="pb-fill" id="pf"></div></div>
   </div>
   <div class="steps" id="ss">
-    <div class="sr" id="s1"><span>✂️</span> AI 抠出宠物主体</div>
-    <div class="sr" id="s2"><span>🎨</span> 背景转动漫画风（保留构图）</div>
-    <div class="sr" id="s3"><span>✨</span> 合成 + 动态粒子</div>
-    <div class="sr" id="s4"><span>📱</span> 渲染壁纸</div>
+    <div class="sr" id="s1"><span>🎨</span> AI 整图风格转换中</div>
+    <div class="sr" id="s2"><span>✨</span> 增强细节与光效</div>
+    <div class="sr" id="s3"><span>📱</span> 渲染壁纸格式</div>
   </div>
   <div class="exp" id="ep">
     <div class="exp-t">导出壁纸</div>
@@ -175,32 +215,46 @@ nav{display:flex;align-items:center;padding:14px 32px;border-bottom:1px solid va
 <div class="toast" id="toast"><span id="tm"></span></div>
 
 <script>
-let selectedStyle='anime', particleType='butterfly';
-let uploadedB64=null, petImg=null, bgImg=null;
+let selStyle='3d_energy';
+let uploadedB64=null, resultImg=null;
 let isGen=false, raf=null, t=0;
 let particles=[];
 
-const canvas=document.getElementById('wc'), ctx=canvas.getContext('2d');
-const W=canvas.width, H=canvas.height;
+const canvas=document.getElementById('wc'),ctx=canvas.getContext('2d');
+const W=canvas.width,H=canvas.height;
 
-function tick(){
-  const n=new Date(),h=String(n.getHours()).padStart(2,'0'),m=String(n.getMinutes()).padStart(2,'0');
-  document.getElementById('ct').textContent=h+':'+m;
-  const days=['日','一','二','三','四','五','六'];
-  document.getElementById('cd').textContent='星期'+days[n.getDay()]+' · '+(n.getMonth()+1)+'月'+n.getDate()+'日';
-}
-tick(); setInterval(tick,10000);
+// clock
+function tick(){const n=new Date(),h=String(n.getHours()).padStart(2,'0'),m=String(n.getMinutes()).padStart(2,'0');document.getElementById('ct').textContent=h+':'+m;const days=['日','一','二','三','四','五','六'];document.getElementById('cd').textContent='星期'+days[n.getDay()]+' · '+(n.getMonth()+1)+'月'+n.getDate()+'日';}
+tick();setInterval(tick,10000);
 
-function selStyle(el){
+// style preview canvases — animated mini previews
+const pvDefs={
+  'pv-energy':{bg:'#050015',fn:(cx,W,H,t)=>{cx.fillStyle='#050015';cx.fillRect(0,0,W,H);for(let i=0;i<8;i++){const x=W/2+Math.cos(t*1.5+i*0.8)*W*0.3,y=H/2+Math.sin(t*1.2+i*0.7)*H*0.3,a=0.5+Math.sin(t*3+i)*0.4;cx.save();cx.globalAlpha=a;cx.strokeStyle=i%2?'#a78bfa':'#60a5fa';cx.lineWidth=1.5;cx.shadowColor=i%2?'#a78bfa':'#60a5fa';cx.shadowBlur=8;cx.beginPath();cx.moveTo(W/2,H/2);cx.lineTo(x,y);cx.stroke();cx.restore();}cx.font='22px serif';cx.textAlign='center';cx.fillText('⚡',W/2,H/2+7);}},
+  'pv-ghibli':{bg:'#1a0f00',fn:(cx,W,H,t)=>{const g=cx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#2d1a00');g.addColorStop(1,'#1a0f00');cx.fillStyle=g;cx.fillRect(0,0,W,H);for(let i=0;i<6;i++){const x=(i*23+t*15)%W,y=H-(t*12+i*15)%H,a=0.6+Math.sin(t*2+i)*0.3;cx.save();cx.globalAlpha=a;cx.fillStyle='#fde68a';cx.shadowColor='#fde68a';cx.shadowBlur=5;cx.beginPath();cx.arc(x,y,2,0,Math.PI*2);cx.fill();cx.restore();}cx.font='22px serif';cx.textAlign='center';cx.fillText('🌸',W/2,H/2+7);}},
+  'pv-cyber':{bg:'#000510',fn:(cx,W,H,t)=>{cx.fillStyle='#000510';cx.fillRect(0,0,W,H);const cols=['#00ffff','#ff00ff','#7c3aed'];for(let i=0;i<5;i++){const p=0.3+Math.abs(Math.sin(t*2+i))*0.5;cx.save();cx.globalAlpha=p*0.4;cx.strokeStyle=cols[i%3];cx.lineWidth=1;cx.shadowColor=cols[i%3];cx.shadowBlur=12;cx.beginPath();cx.moveTo(i*26,0);cx.lineTo(i*26,H);cx.stroke();cx.restore();}cx.font='22px serif';cx.textAlign='center';cx.fillText('⚡',W/2,H/2+7);}},
+  'pv-fantasy':{bg:'#050a20',fn:(cx,W,H,t)=>{cx.fillStyle='#050a20';cx.fillRect(0,0,W,H);for(let i=0;i<10;i++){const a=0.3+Math.abs(Math.sin(t*1.5+i*0.6))*0.6,r=H*0.25+i*3,x=W/2+Math.cos(t*0.5+i*0.63)*r*0.8,y=H/2+Math.sin(t*0.5+i*0.63)*r*0.6;cx.save();cx.globalAlpha=a;cx.fillStyle=i%2?'#a78bfa':'#818cf8';cx.shadowColor='#a78bfa';cx.shadowBlur=6;cx.beginPath();cx.arc(x,y,1.5,0,Math.PI*2);cx.fill();cx.restore();}cx.font='22px serif';cx.textAlign='center';cx.fillText('🔮',W/2,H/2+7);}},
+  'pv-fireice':{bg:'#100500',fn:(cx,W,H,t)=>{const g=cx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#200500');g.addColorStop(0.5,'#100810');g.addColorStop(1,'#000a20');cx.fillStyle=g;cx.fillRect(0,0,W,H);for(let i=0;i<8;i++){const isF=i<4,x=(i*18+t*(isF?20:-15))%W,y=H-(t*(isF?15:10)+i*12)%H,a=0.5+Math.sin(t*3+i)*0.3;cx.save();cx.globalAlpha=a;cx.fillStyle=isF?'#f97316':'#60a5fa';cx.shadowColor=isF?'#f97316':'#60a5fa';cx.shadowBlur=8;cx.beginPath();cx.arc(x,y,2.5,0,Math.PI*2);cx.fill();cx.restore();}cx.font='22px serif';cx.textAlign='center';cx.fillText('🔥',W/2,H/2+7);}},
+  'pv-golden':{bg:'#1a0800',fn:(cx,W,H,t)=>{const g=cx.createRadialGradient(W/2,H*0.3,0,W/2,H*0.3,H*0.8);g.addColorStop(0,'#78350f');g.addColorStop(1,'#1a0800');cx.fillStyle=g;cx.fillRect(0,0,W,H);const pls=0.7+Math.sin(t*1.5)*0.3;cx.save();cx.globalAlpha=pls*0.5;const lg=cx.createRadialGradient(W/2,0,0,W/2,0,H*0.7);lg.addColorStop(0,'#fbbf24');lg.addColorStop(1,'transparent');cx.fillStyle=lg;cx.fillRect(0,0,W,H);cx.restore();cx.font='22px serif';cx.textAlign='center';cx.fillText('🌅',W/2,H/2+7);}},
+  'pv-ink':{bg:'#050508',fn:(cx,W,H,t)=>{cx.fillStyle='#050508';cx.fillRect(0,0,W,H);const cols=['#dc2626','#2563eb','#16a34a','#9333ea','#ea580c'];for(let i=0;i<5;i++){const a=0.4+Math.abs(Math.sin(t*1.5+i))*0.5,r=8+i*4;cx.save();cx.globalAlpha=a;cx.fillStyle=cols[i];cx.shadowColor=cols[i];cx.shadowBlur=10;cx.beginPath();cx.arc(W/2+Math.cos(t+i*1.26)*20,H/2+Math.sin(t+i*1.26)*15,r,0,Math.PI*2);cx.fill();cx.restore();}cx.font='22px serif';cx.textAlign='center';cx.fillText('🖌️',W/2,H/2+7);}},
+  'pv-space':{bg:'#020210',fn:(cx,W,H,t)=>{cx.fillStyle='#020210';cx.fillRect(0,0,W,H);for(let i=0;i<15;i++){const a=0.2+Math.abs(Math.sin(t*1.2+i*0.5))*0.7;cx.save();cx.globalAlpha=a;cx.fillStyle='white';cx.shadowColor='white';cx.shadowBlur=3;cx.beginPath();cx.arc((i*17+7)%W,(i*11+3)%H,1,0,Math.PI*2);cx.fill();cx.restore();}const aHue=(t*20)%360;cx.save();cx.globalAlpha=0.3;const ag=cx.createLinearGradient(0,H*0.2,W,H*0.8);ag.addColorStop(0,`hsla(${aHue},80%,60%,0.5)`);ag.addColorStop(0.5,`hsla(${(aHue+60)%360},80%,60%,0.3)`);ag.addColorStop(1,`hsla(${(aHue+120)%360},80%,60%,0.5)`);cx.fillStyle=ag;cx.fillRect(0,0,W,H);cx.restore();cx.font='22px serif';cx.textAlign='center';cx.fillText('🌌',W/2,H/2+7);}},
+};
+
+// Run all previews
+Object.entries(pvDefs).forEach(([id,def])=>{
+  const c=document.getElementById(id);if(!c)return;
+  const cx=c.getContext('2d');let s=null;
+  function fr(ts){if(!s)s=ts;const t=(ts-s)/1000;cx.clearRect(0,0,c.width,c.height);cx.textAlign='center';def.fn(cx,c.width,c.height,t);requestAnimationFrame(fr);}
+  requestAnimationFrame(fr);
+});
+
+function selS(el){
   document.querySelectorAll('.sc').forEach(o=>o.classList.remove('sel'));
   el.classList.add('sel');
-  selectedStyle=el.dataset.s;
-  particleType=el.dataset.p;
-  initParticles();
+  selStyle=el.dataset.s;
 }
 
 function handleFile(e){
-  const file=e.target.files[0]; if(!file) return;
+  const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=ev=>{
     uploadedB64=ev.target.result;
@@ -208,110 +262,70 @@ function handleFile(e){
     uz.classList.add('has');
     uz.innerHTML='<img class="up" src="'+ev.target.result+'"><button class="uch" onclick="resetUpload()">↺ 更换照片</button>';
     document.getElementById('ep').classList.remove('show');
-    petImg=null; bgImg=null;
+    resultImg=null;
+    // show uploaded image in preview immediately
+    loadImg(ev.target.result).then(img=>{
+      resultImg=img; drawFrame();
+    });
   };
   reader.readAsDataURL(file);
 }
 
 function resetUpload(){
-  uploadedB64=null; petImg=null; bgImg=null;
+  uploadedB64=null;resultImg=null;
   const uz=document.getElementById('uz');
   uz.classList.remove('has');
-  uz.innerHTML='<input type="file" accept="image/*" id="fi" onchange="handleFile(event)"><div style="font-size:24px;margin-bottom:7px;opacity:0.35;">📷</div><div class="uh"><strong>点击上传照片</strong>背景转动漫画风<br>宠物主体保持真实</div>';
+  uz.innerHTML='<input type="file" accept="image/*" id="fi" onchange="handleFile(event)"><div style="font-size:22px;margin-bottom:6px;opacity:0.35;">📷</div><div class="uh"><strong>点击上传照片</strong>整张图统一风格转换<br>宠物与背景融为一体</div>';
   document.getElementById('ep').classList.remove('show');
 }
 
 async function startGen(){
-  if(isGen) return;
+  if(isGen)return;
   if(!uploadedB64){showToast('请先上传一张宠物照片');return;}
   isGen=true;
   const btn=document.getElementById('gb');
-  btn.disabled=true; btn.innerHTML='<span class="spin">⟳</span> 生成中…';
+  btn.disabled=true;btn.innerHTML='<span class="spin">⟳</span> 风格转换中…';
   document.getElementById('ep').classList.remove('show');
 
-  const pb=document.getElementById('pb'),pf=document.getElementById('pf');
-  const pm=document.getElementById('pm'),pp=document.getElementById('pp');
-  const ss=document.getElementById('ss');
-  pb.classList.add('show'); ss.classList.add('show');
+  const pb=document.getElementById('pb'),pf=document.getElementById('pf'),pm=document.getElementById('pm'),pp=document.getElementById('pp'),ss=document.getElementById('ss');
+  pb.classList.add('show');ss.classList.add('show');
 
   function prog(pct,msg){pf.style.width=pct+'%';pp.textContent=pct+'%';pm.textContent=msg;}
-  function step(n){for(let i=1;i<=4;i++){const el=document.getElementById('s'+i);el.classList.remove('active','done');if(i<n)el.classList.add('done');if(i===n)el.classList.add('active');}}
+  function step(n){for(let i=1;i<=3;i++){const el=document.getElementById('s'+i);el.classList.remove('active','done');if(i<n)el.classList.add('done');if(i===n)el.classList.add('active');}}
 
   try{
-    step(1); prog(8,'并行处理：抠图 + 背景转换…');
+    step(1);prog(15,'AI 整图风格转换中（约 20~40 秒）…');
 
     const resp=await fetch('/api/generate',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({image:uploadedB64, style:selectedStyle})
+      body:JSON.stringify({image:uploadedB64,style:selStyle})
     });
 
     if(!resp.ok){const err=await resp.json();throw new Error(err.error||'生成失败');}
     const data=await resp.json();
 
-    step(2); prog(70,'加载图像…');
+    step(2);prog(75,'加载结果…');
+    resultImg=await loadImg(data.output);
 
-    [petImg, bgImg]=await Promise.all([
-      loadImg(data.pet),
-      loadImg(data.background)
-    ]);
-
-    step(3); prog(84,'合成动态效果…');
-    initParticles();
-    await wait(300);
-
-    step(4); prog(96,'渲染壁纸…');
+    step(3);prog(95,'渲染壁纸…');
     startAnim();
     await wait(300);
 
     prog(100,'完成！');
-    pb.classList.remove('show'); ss.classList.remove('show');
+    pb.classList.remove('show');ss.classList.remove('show');
     document.getElementById('ep').classList.add('show');
-    showToast('✦ 完成！背景已转动漫画风，宠物主体保持真实');
+    showToast('✦ 风格转换完成！宠物与背景完全融合');
 
   }catch(err){
-    pb.classList.remove('show'); ss.classList.remove('show');
+    pb.classList.remove('show');ss.classList.remove('show');
     showToast('❌ '+err.message);
     console.error(err);
   }
-  btn.disabled=false; btn.innerHTML='✦ 重新生成'; isGen=false;
+  btn.disabled=false;btn.innerHTML='✦ 重新生成';isGen=false;
 }
 
-function loadImg(src){
-  return new Promise((res,rej)=>{
-    const img=new Image();
-    img.onload=()=>res(img);
-    img.onerror=()=>rej(new Error('图像加载失败'));
-    img.src=src;
-  });
-}
-
-// ── PARTICLES ──
-function initParticles(){
-  particles=[];
-  const cfgs={
-    butterfly:{n:35,cols:['#f9a8d4','#a78bfa','#60a5fa','#86efac'],sz:[6,16],type:'butterfly'},
-    neon:{n:25,cols:['#00ffff','#ff00ff','#7c3aed','#0ea5e9'],sz:[1,3],type:'neon'},
-    petals:{n:40,cols:['#fda4af','#f9a8d4','#fbcfe8'],sz:[5,12],type:'petal'},
-    stars:{n:90,cols:['white','#e0e7ff','#c7d2fe'],sz:[0.5,3],type:'star'},
-  };
-  const cfg=cfgs[particleType]||cfgs.butterfly;
-  for(let i=0;i<cfg.n;i++){
-    particles.push({
-      x:Math.random()*W, y:Math.random()*H,
-      vx:(Math.random()-.5)*1.0,
-      vy:-(Math.random()*0.7+0.2),
-      size:Math.random()*(cfg.sz[1]-cfg.sz[0])+cfg.sz[0],
-      color:cfg.cols[Math.floor(Math.random()*cfg.cols.length)],
-      phase:Math.random()*Math.PI*2,
-      spd:Math.random()*.04+.01,
-      life:Math.random(),
-      type:cfg.type,
-      rot:Math.random()*Math.PI*2,
-      rotSpd:(Math.random()-.5)*.05
-    });
-  }
-}
+function loadImg(src){return new Promise((res,rej)=>{const img=new Image();img.onload=()=>res(img);img.onerror=()=>rej(new Error('加载失败'));img.src=src;});}
 
 function startAnim(){
   if(raf)cancelAnimationFrame(raf);
@@ -322,91 +336,28 @@ function startAnim(){
 function drawFrame(){
   ctx.clearRect(0,0,W,H);
 
-  // 1. 动漫风格背景（原图画风转换后）
-  if(bgImg&&bgImg.complete&&bgImg.naturalWidth>0){
-    const sc=Math.max(W/bgImg.naturalWidth,H/bgImg.naturalHeight);
-    const iw=bgImg.naturalWidth*sc,ih=bgImg.naturalHeight*sc;
-    ctx.drawImage(bgImg,(W-iw)/2,(H-ih)/2,iw,ih);
+  if(resultImg&&resultImg.complete&&resultImg.naturalWidth>0){
+    // 整张图铺满
+    const sc=Math.max(W/resultImg.naturalWidth,H/resultImg.naturalHeight);
+    const iw=resultImg.naturalWidth*sc,ih=resultImg.naturalHeight*sc;
+    ctx.drawImage(resultImg,(W-iw)/2,(H-ih)/2,iw,ih);
   } else {
-    // 未生成时显示默认渐变
-    const g=ctx.createLinearGradient(0,0,W,H);
-    g.addColorStop(0,'#1a0a2e');g.addColorStop(1,'#0d1535');
-    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-    // 提示文字
-    ctx.fillStyle='rgba(255,255,255,0.15)';
-    ctx.font='bold 32px sans-serif';
-    ctx.textAlign='center';
-    ctx.fillText('上传照片后生成',W/2,H/2);
+    // 默认背景
+    ctx.fillStyle='#06040A';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='rgba(255,255,255,0.08)';
+    ctx.font='bold 28px sans-serif';ctx.textAlign='center';
+    ctx.fillText('选择风格并上传照片',W/2,H/2-20);
+    ctx.font='22px sans-serif';ctx.fillStyle='rgba(255,255,255,0.04)';
+    ctx.fillText('整图统一风格转换',W/2,H/2+20);
   }
 
-  // 2. 粒子效果（背景层，在宠物下面）
-  drawParticlesBehind();
-
-  // 3. 真实宠物主体（抠图后）叠在动漫背景上
-  if(petImg&&petImg.complete&&petImg.naturalWidth>0){
-    const sc=Math.min(W/petImg.naturalWidth, H/petImg.naturalHeight);
-    const pw=petImg.naturalWidth*sc, ph=petImg.naturalHeight*sc;
-    const px=(W-pw)/2, py=(H-ph)/2;
-    // 轻微阴影让宠物和背景融合
-    ctx.save();
-    ctx.shadowColor='rgba(0,0,0,0.4)';
-    ctx.shadowBlur=30;
-    ctx.shadowOffsetY=15;
-    ctx.drawImage(petImg,px,py,pw,ph);
-    ctx.restore();
-  }
-
-  // 4. 前景粒子（在宠物上面）
-  drawParticlesFront();
-
-  // 5. 底部渐变
+  // 底部渐变
   const g=ctx.createLinearGradient(0,H*0.65,0,H);
   g.addColorStop(0,'transparent');g.addColorStop(1,'rgba(0,0,0,0.82)');
   ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
 }
 
-function drawParticlesBehind(){
-  // 画前50%的粒子在宠物下面
-  particles.slice(0, Math.floor(particles.length*0.5)).forEach(p=>drawParticle(p));
-}
-
-function drawParticlesFront(){
-  // 画后50%的粒子在宠物上面（增加层次感）
-  particles.slice(Math.floor(particles.length*0.5)).forEach(p=>drawParticle(p));
-}
-
-function drawParticle(p){
-  p.x+=p.vx+Math.sin(t*p.spd+p.phase)*0.8;
-  p.y+=p.vy; p.phase+=p.spd*0.5; p.rot+=p.rotSpd; p.life+=0.004;
-  if(p.y<-30||p.life>1){p.life=0;p.y=H+20;p.x=Math.random()*W;}
-  if(p.x<-30||p.x>W+30){p.x=Math.random()*W;p.y=H+20;}
-  const alpha=Math.sin(p.life*Math.PI)*0.8;
-  ctx.save();
-  ctx.globalAlpha=alpha;
-  ctx.translate(p.x,p.y);
-  ctx.rotate(p.rot);
-  if(p.type==='butterfly'){
-    const flap=Math.abs(Math.sin(t*5+p.phase));
-    ctx.fillStyle=p.color;ctx.shadowColor=p.color;ctx.shadowBlur=8;
-    ctx.beginPath();ctx.ellipse(-p.size*flap*0.8,0,p.size,p.size*0.6,-0.4,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.ellipse(p.size*flap*0.8,0,p.size,p.size*0.6,0.4,0,Math.PI*2);ctx.fill();
-  } else if(p.type==='star'){
-    ctx.fillStyle=p.color;ctx.shadowColor='white';ctx.shadowBlur=p.size*4;
-    ctx.beginPath();ctx.arc(0,0,p.size,0,Math.PI*2);ctx.fill();
-  } else if(p.type==='petal'){
-    ctx.fillStyle=p.color;ctx.shadowColor=p.color;ctx.shadowBlur=6;
-    ctx.beginPath();ctx.ellipse(0,0,p.size,p.size*0.5,0,0,Math.PI*2);ctx.fill();
-  } else if(p.type==='neon'){
-    ctx.fillStyle=p.color;ctx.shadowColor=p.color;ctx.shadowBlur=14;
-    ctx.beginPath();ctx.arc(0,0,p.size,0,Math.PI*2);ctx.fill();
-  }
-  ctx.restore();
-}
-
-function exportImg(){
-  const a=document.createElement('a');a.download='anypet-wallpaper.png';a.href=canvas.toDataURL('image/png');a.click();
-  showToast('✓ 已下载！');
-}
+function exportImg(){const a=document.createElement('a');a.download='anypet-wallpaper.png';a.href=canvas.toDataURL('image/png');a.click();showToast('✓ 已下载！');}
 function exportVideo(){
   if(!window.MediaRecorder){showToast('请用 Chrome 浏览器');return;}
   const chunks=[],stream=canvas.captureStream(30);
@@ -419,8 +370,8 @@ function exportVideo(){
 function wait(ms){return new Promise(r=>setTimeout(r,ms));}
 function showToast(msg){const t=document.getElementById('toast');document.getElementById('tm').textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4000);}
 
-initParticles();
-startAnim();
+// init default animation
+(function loop(){t=Date.now()/1000;drawFrame();raf=requestAnimationFrame(loop);})();
 </script>
 </body>
 </html>
