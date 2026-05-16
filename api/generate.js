@@ -1,4 +1,4 @@
-// api/generate.js — fal.ai Flux Redux，保留宠物外形特征
+// api/generate.js — 风格转换版本，用 fal.ai Flux Redux
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -11,23 +11,36 @@ export default async function handler(req, res) {
   if (!falKey) return res.status(500).json({ error: 'FAL API Key 未配置' });
 
   try {
-    const { prompt, image, animal } = req.body;
+    const { prompt, image } = req.body;
+    if (!image) return res.status(400).json({ error: '请上传图片' });
 
-    const fullPrompt = `${animal || 'cute pet'} ${prompt}, photorealistic, highly detailed fur and facial features, professional studio portrait, 4k quality`;
+    // Flux Redux — 风格迁移，保留宠物主体
+    const resp = await fetch('https://fal.run/fal-ai/flux-pro/v1/redux', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Key ${falKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        image_url: image,
+        prompt: prompt,
+        num_inference_steps: 28,
+        guidance_scale: 3.5,
+        image_size: { width: 768, height: 1024 },
+      })
+    });
 
-    let outputUrl;
-
-    if (image) {
-      // Flux Redux — 读取原图特征，保留外形，改变风格
-      outputUrl = await runFluxRedux(falKey, image, fullPrompt);
-    } else {
-      outputUrl = await runFluxDev(falKey, fullPrompt);
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.detail || err.message || 'fal.ai 调用失败');
     }
 
-    if (!outputUrl) throw new Error('未获得图片');
+    const data = await resp.json();
+    const imageUrl = data?.images?.[0]?.url || data?.image?.url;
+    if (!imageUrl) throw new Error('未获得图片 URL');
 
-    // 下载转 base64 返回，解决前端跨域
-    const imgResp = await fetch(outputUrl);
+    // 下载转 base64
+    const imgResp = await fetch(imageUrl);
     if (!imgResp.ok) throw new Error('图片下载失败');
     const buffer = await imgResp.arrayBuffer();
     const base64 = Buffer.from(buffer).toString('base64');
@@ -39,58 +52,4 @@ export default async function handler(req, res) {
     console.error('Error:', err.message);
     return res.status(500).json({ error: err.message });
   }
-}
-
-// Flux Redux — 图片风格迁移，保留主体特征
-async function runFluxRedux(falKey, imageData, prompt) {
-  const resp = await fetch('https://fal.run/fal-ai/flux-pro/v1/redux', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Key ${falKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      image_url: imageData,
-      prompt: prompt,
-      num_inference_steps: 28,
-      guidance_scale: 3.5,
-      image_size: { width: 768, height: 768 },
-    })
-  });
-
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => ({}));
-    console.log('Flux Redux error:', JSON.stringify(err));
-    // fallback to Flux Dev text-to-image
-    return await runFluxDev(falKey, prompt);
-  }
-
-  const data = await resp.json();
-  return data?.images?.[0]?.url || data?.image?.url;
-}
-
-// Flux Dev — 文字生成（fallback）
-async function runFluxDev(falKey, prompt) {
-  const resp = await fetch('https://fal.run/fal-ai/flux/dev', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Key ${falKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      prompt: prompt,
-      num_inference_steps: 28,
-      guidance_scale: 3.5,
-      image_size: { width: 768, height: 768 },
-      num_images: 1,
-    })
-  });
-
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => ({}));
-    throw new Error(err.detail || err.message || 'fal.ai 调用失败');
-  }
-
-  const data = await resp.json();
-  return data?.images?.[0]?.url;
 }
