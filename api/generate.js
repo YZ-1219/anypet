@@ -9,50 +9,35 @@ export default async function handler(req, res) {
   if (!falKey) return res.status(500).json({ error: 'FAL API Key 未配置' });
 
   try {
-    const { image, style, animal } = req.body;
+    const { image, style } = req.body;
     if (!image) return res.status(400).json({ error: '请上传图片' });
 
-    // 动物映射
-    // animalNames no longer needed
-    const animalNames = {
-      cat:'cat', dog:'dog', rabbit:'rabbit', hamster:'hamster',
-      parrot:'parrot', lizard:'lizard', turtle:'turtle', fish:'fish', pet:'cute pet'
-    };
-    const animalName = animalNames[animal] || 'cute pet';
-
-    // 8种风格 — 每种都有明显不同的背景描述 + 服装元素
-    // 主体由原图决定，不写死动物名称
-
     const styles = {
-      '3d_energy': `hyperrealistic 3D render of a the animal in the photo wearing a glowing energy armor suit, surrounded by electric lightning bolts and plasma energy, dramatic dark background filled with electric sparks and neon particle effects, volumetric purple and blue light rays, Pixar quality, cinematic, 8k`,
-      'anime_ghibli': `Studio Ghibli anime painting of a the animal in the photo wearing a small cute kimono outfit, standing in a magical enchanted forest with giant glowing mushrooms, fireflies, aurora sky, hand-painted style, warm golden light, cherry blossom petals falling, masterpiece`,
-      'cyberpunk_neon': `cyberpunk portrait of a the animal in the photo wearing a tiny cyberpunk jacket with neon trim, neon-lit rainy city background, holographic advertisements, neon reflections on wet street, electric blue and magenta glow, blade runner atmosphere, cinematic`,
-      'fantasy_magic': `epic fantasy portrait of a the animal in the photo wearing a small wizard robe and hat, surrounded by swirling magical spell effects and glowing runes, enchanted forest background with floating magical orbs and light beams, mystical purple and gold atmosphere, digital art`,
-      'fire_ice': `dramatic portrait of a the animal in the photo with fire and ice elements, half background is volcanic lava and fire with embers, half is frozen tundra with ice crystals and snowflakes, the pet wears elemental cape, extreme contrast warm orange and icy blue, epic cinematic`,
-      'golden_hour': `cinematic portrait of a the animal in the photo wearing a small bow tie and flower crown, breathtaking golden sunset background, sun rays and warm bokeh, rolling hills silhouette, dust particles floating in golden light, professional photography, award-winning`,
-      'ink_splash': `artistic portrait of a the animal in the photo wearing a colorful traditional outfit, dynamic background of explosive Chinese ink splashes and rainbow watercolor bursts, bold abstract paint explosions in red blue gold purple, the pet emerges from beautiful chaos`,
-      'space_cosmic': `cosmic portrait of a the animal in the photo wearing a tiny astronaut suit, floating in deep space with a stunning colorful nebula background, swirling purple and blue galactic clouds, stars and distant planets, aurora borealis, cosmic stardust, NASA art style`,
+      '3d_energy':     'glowing electric energy and lightning bolts surrounding the subject, dramatic dark background with electric sparks and neon particle effects, volumetric purple and blue light rays, 3D Pixar quality render, cinematic, 8k',
+      'anime_ghibli':  'Studio Ghibli anime illustration style, magical enchanted forest background with glowing fireflies, aurora sky, warm golden light, cherry blossom petals, hand-painted masterpiece',
+      'cyberpunk_neon':'cyberpunk neon city background, holographic advertisements, neon reflections on wet street, electric blue and magenta glow, blade runner atmosphere, cinematic',
+      'fantasy_magic': 'surrounded by swirling magical spell effects and glowing runes, enchanted forest background with floating magical orbs and light beams, mystical purple and gold atmosphere, epic fantasy digital art',
+      'fire_ice':      'dramatic half fire half ice elemental background, volcanic lava and fire with embers on one side, frozen tundra with ice crystals on other side, extreme contrast warm orange and icy blue',
+      'golden_hour':   'breathtaking golden sunset background, sun rays and warm bokeh, rolling hills silhouette, dust particles floating in golden light, professional photography, cinematic',
+      'ink_splash':    'dynamic background of explosive Chinese ink splashes and rainbow watercolor bursts, bold abstract paint explosions in red blue gold purple, artistic masterpiece',
+      'space_cosmic':  'floating in deep space with stunning colorful nebula background, swirling purple and blue galactic clouds, stars and distant planets, aurora borealis, cosmic stardust',
     };
 
-    const prefix = 'Preserve the exact appearance, fur/skin color, markings and body shape of the animal in the photo. Only transform the background, lighting and add costume elements. ';
-    const prompt = prefix + (styles[style] || styles['3d_energy']);
+    const bgPrompt = styles[style] || styles['3d_energy'];
 
-    console.log('Using style:', style);
-    console.log('Prompt:', prompt.substring(0, 100));
-
-    // 用 fast-sdxl img2img — 速度快，风格变化大
+    // Strategy: LOW strength (0.55) to preserve the subject
+    // ControlNet approach with subject preservation
     const resp = await fetch('https://fal.run/fal-ai/fast-sdxl/image-to-image', {
       method: 'POST',
       headers: { 'Authorization': `Key ${falKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         image_url: image,
-        prompt: prompt,
-        negative_prompt: 'blurry, low quality, deformed, ugly, extra limbs, text, watermark',
-        strength: 0.88,
-        num_inference_steps: 35,
-        guidance_scale: 8.0,
+        prompt: `the exact same animal from the reference photo, same species breed color and markings, ${bgPrompt}`,
+        negative_prompt: 'different animal, wrong species, human, person, deformed, ugly, low quality, blurry',
+        strength: 0.60,          // LOW = subject preserved
+        num_inference_steps: 40,
+        guidance_scale: 9.0,    // HIGH guidance = stick to prompt description
         image_size: { width: 768, height: 1024 },
-        num_images: 1,
       })
     });
 
@@ -61,50 +46,29 @@ export default async function handler(req, res) {
     if (resp.ok) {
       const data = await resp.json();
       imgUrl = data?.images?.[0]?.url;
-      console.log('fast-sdxl success:', imgUrl);
     }
 
-    // Fallback: flux-dev img2img
+    // Fallback: flux redux with low guidance
     if (!imgUrl) {
-      console.log('Trying flux-dev img2img fallback...');
-      const r2 = await fetch('https://fal.run/fal-ai/flux/dev/image-to-image', {
+      console.log('Fallback to flux redux...');
+      const r2 = await fetch('https://fal.run/fal-ai/flux-pro/v1/redux', {
         method: 'POST',
         headers: { 'Authorization': `Key ${falKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           image_url: image,
-          prompt: prompt,
-          strength: 0.88,
+          prompt: `same animal as in photo, ${bgPrompt}`,
           num_inference_steps: 28,
-          guidance_scale: 4.0,
+          guidance_scale: 3.5,
           image_size: { width: 768, height: 1024 },
         })
       });
       if (r2.ok) {
         const d2 = await r2.json();
-        imgUrl = d2?.images?.[0]?.url;
-        console.log('flux-dev success:', imgUrl);
+        imgUrl = d2?.images?.[0]?.url || d2?.image?.url;
       }
     }
 
-    // Final fallback: flux-redux
-    if (!imgUrl) {
-      console.log('Trying flux-redux final fallback...');
-      const r3 = await fetch('https://fal.run/fal-ai/flux-pro/v1/redux', {
-        method: 'POST',
-        headers: { 'Authorization': `Key ${falKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          image_url: image,
-          prompt: prompt,
-          num_inference_steps: 28,
-          guidance_scale: 5.0,
-          image_size: { width: 768, height: 1024 },
-        })
-      });
-      const d3 = await r3.json();
-      imgUrl = d3?.images?.[0]?.url || d3?.image?.url;
-    }
-
-    if (!imgUrl) throw new Error('所有模型均失败，请重试');
+    if (!imgUrl) throw new Error('生成失败，请重试');
 
     const imgResp = await fetch(imgUrl);
     const buffer = await imgResp.arrayBuffer();
