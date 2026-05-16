@@ -3,545 +3,351 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AnyPet — 动态壁纸工坊</title>
+<title>AnyPet — 宠物壁纸工坊</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-:root {
-  --ink:#080608;--ink2:#1a1520;--cream:#F0EAF8;--cream2:rgba(240,234,248,0.6);
-  --cream3:rgba(240,234,248,0.3);--gold:#C9942A;--purple:#7C3AED;--purple2:#A855F7;
-  --border:rgba(240,234,248,0.08);--border2:rgba(240,234,248,0.15);--r:14px;--rs:8px;
-}
+:root{--ink:#06040A;--cream:#EDE8F8;--cream2:rgba(237,232,248,0.6);--cream3:rgba(237,232,248,0.3);--gold:#C9942A;--purple:#7C3AED;--purple2:#A855F7;--purple3:rgba(168,85,247,0.15);--border:rgba(237,232,248,0.07);--border2:rgba(237,232,248,0.14);--r:14px;--rs:8px;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'DM Sans',sans-serif;background:var(--ink);color:var(--cream);min-height:100vh;overflow-x:hidden;}
-
-nav{display:flex;align-items:center;padding:16px 40px;border-bottom:1px solid var(--border);background:rgba(8,6,8,0.9);backdrop-filter:blur(16px);position:sticky;top:0;z-index:200;}
-.logo{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;display:flex;align-items:center;gap:8px;}
-.logo-dot{width:28px;height:28px;border-radius:8px;background:var(--purple);display:flex;align-items:center;justify-content:center;font-size:14px;}
+nav{display:flex;align-items:center;padding:14px 32px;border-bottom:1px solid var(--border);background:rgba(6,4,10,0.92);backdrop-filter:blur(16px);position:sticky;top:0;z-index:200;}
+.logo{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;display:flex;align-items:center;gap:8px;}
+.logo-dot{width:26px;height:26px;border-radius:7px;background:var(--purple);display:flex;align-items:center;justify-content:center;font-size:13px;}
 .logo em{font-style:italic;color:var(--gold);}
-.nav-tag{margin-left:12px;font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--purple2);background:rgba(124,58,237,0.12);border:1px solid rgba(124,58,237,0.25);padding:3px 10px;border-radius:20px;}
-.nav-status{margin-left:auto;font-size:12px;color:rgba(240,234,248,0.4);display:flex;align-items:center;gap:6px;}
-.status-dot{width:7px;height:7px;border-radius:50%;background:#34d399;}
-
-.main{display:grid;grid-template-columns:320px 1fr;min-height:calc(100vh - 57px);}
-
-.left-panel{border-right:1px solid var(--border);padding:20px 16px;display:flex;flex-direction:column;gap:18px;overflow-y:auto;}
-
-.sec-title{font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--cream3);margin-bottom:9px;display:flex;align-items:center;gap:6px;}
-.sec-title::before{content:'';width:14px;height:1px;background:var(--purple2);}
-
-.animal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
+.nav-tag{margin-left:10px;font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--purple2);background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.2);padding:3px 9px;border-radius:20px;}
+.nav-r{margin-left:auto;font-size:12px;color:var(--cream3);display:flex;align-items:center;gap:6px;}
+.dot-live{width:6px;height:6px;border-radius:50%;background:#34d399;}
+.main{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 53px);}
+.lp{border-right:1px solid var(--border);padding:18px 14px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;}
+.sec-t{font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--cream3);margin-bottom:8px;display:flex;align-items:center;gap:5px;}
+.sec-t::before{content:'';width:12px;height:1px;background:var(--purple2);}
+.ag{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
 .ao{border:1px solid var(--border2);border-radius:9px;padding:8px 4px;text-align:center;cursor:pointer;transition:all 0.15s;background:rgba(255,255,255,0.02);}
-.ao:hover{border-color:var(--purple2);background:rgba(168,85,247,0.08);}
-.ao.sel{border-color:var(--purple2);background:rgba(168,85,247,0.12);}
-.ao .em{font-size:20px;display:block;margin-bottom:3px;}
+.ao:hover{border-color:var(--purple2);background:var(--purple3);}
+.ao.sel{border-color:var(--purple2);background:var(--purple3);}
+.ao .em{font-size:19px;display:block;margin-bottom:3px;}
 .ao .nm{font-size:10px;color:var(--cream3);font-weight:500;}
 .ao.sel .nm{color:var(--purple2);}
-
-.costume-list{display:flex;flex-direction:column;gap:5px;}
-.co{display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid var(--border2);border-radius:var(--rs);cursor:pointer;transition:all 0.15s;background:rgba(255,255,255,0.02);}
-.co:hover{border-color:var(--gold);background:rgba(201,148,42,0.05);}
-.co.sel{border-color:var(--gold);background:rgba(201,148,42,0.08);}
-.co .co-em{font-size:17px;flex-shrink:0;}
-.co-name{font-size:12px;font-weight:500;color:var(--cream2);}
-.co-sub{font-size:10px;color:var(--cream3);}
-.co.sel .co-name{color:var(--gold);}
-
-.upload-zone{border:1.5px dashed var(--border2);border-radius:var(--r);min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:all 0.2s;background:rgba(255,255,255,0.01);text-align:center;}
-.upload-zone:hover{border-color:var(--purple2);background:rgba(168,85,247,0.05);}
-.upload-zone.has-img{overflow:hidden;cursor:default;}
-.upload-zone.has-img:hover{border-color:var(--border2);background:transparent;}
-.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
-.upload-zone.has-img input{display:none;}
-.upload-preview{width:100%;height:120px;object-fit:cover;display:block;}
-.upload-change{width:100%;padding:5px;background:rgba(255,255,255,0.04);border:none;border-top:1px solid var(--border);color:var(--cream3);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;}
-.upload-change:hover{background:rgba(255,255,255,0.07);}
-.upload-hint{font-size:12px;color:var(--cream3);line-height:1.5;}
-.upload-hint strong{display:block;color:var(--cream2);font-size:13px;margin-bottom:3px;}
-
-.effect-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
-.ef{border:1px solid var(--border2);border-radius:9px;overflow:hidden;cursor:pointer;transition:all 0.18s;}
-.ef:hover{border-color:var(--purple2);transform:translateY(-2px);}
-.ef.sel{border-color:var(--purple2);border-width:1.5px;}
-.ef-preview{height:52px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px;}
-.ef-label{padding:4px 6px;border-top:1px solid var(--border);font-size:10px;font-weight:500;color:var(--cream3);text-align:center;}
-.ef.sel .ef-label{color:var(--purple2);}
-
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.sc{border:1px solid var(--border2);border-radius:10px;overflow:hidden;cursor:pointer;transition:all 0.18s;background:rgba(255,255,255,0.02);}
+.sc:hover{border-color:var(--purple2);transform:translateY(-2px);}
+.sc.sel{border-color:var(--purple2);border-width:1.5px;}
+.sc-thumb{height:64px;display:flex;align-items:center;justify-content:center;font-size:28px;position:relative;overflow:hidden;}
+.sc-info{padding:6px 8px;border-top:1px solid var(--border);}
+.sc-name{font-size:11px;font-weight:500;color:var(--cream2);}
+.sc-sub{font-size:10px;color:var(--cream3);}
+.sc.sel .sc-name{color:var(--purple2);}
+.uz{border:1.5px dashed var(--border2);border-radius:var(--r);min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:all 0.2s;background:rgba(255,255,255,0.01);text-align:center;}
+.uz:hover{border-color:var(--purple2);background:var(--purple3);}
+.uz.has{overflow:hidden;cursor:default;}
+.uz.has:hover{border-color:var(--border2);background:transparent;}
+.uz input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.uz.has input{display:none;}
+.up{width:100%;height:110px;object-fit:cover;display:block;}
+.uch{width:100%;padding:5px;background:rgba(255,255,255,0.04);border:none;border-top:1px solid var(--border);color:var(--cream3);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.uch:hover{background:rgba(255,255,255,0.08);}
+.uh{font-size:12px;color:var(--cream3);line-height:1.5;}
+.uh strong{display:block;color:var(--cream2);font-size:13px;margin-bottom:3px;}
 .gen-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--purple),#9333EA);color:white;border:none;border-radius:var(--rs);font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;}
-.gen-btn:hover:not(:disabled){filter:brightness(1.15);transform:translateY(-1px);}
+.gen-btn:hover:not(:disabled){filter:brightness(1.12);transform:translateY(-1px);}
 .gen-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .spin{display:inline-block;animation:spin 0.8s linear infinite;}
-
-.right-panel{display:flex;flex-direction:column;align-items:center;padding:28px 40px;position:relative;overflow:hidden;}
-.canvas-wrap{width:280px;height:500px;border-radius:30px;border:2px solid rgba(255,255,255,0.1);overflow:hidden;position:relative;box-shadow:0 40px 80px rgba(0,0,0,0.7);background:#000;flex-shrink:0;}
-#wallpaperCanvas{width:100%;height:100%;display:block;}
-
-.clock-overlay{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);text-align:center;pointer-events:none;}
-.clock-time{font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:600;color:white;text-shadow:0 2px 20px rgba(0,0,0,0.8);line-height:1;}
-.clock-date{font-size:13px;color:rgba(255,255,255,0.55);margin-top:4px;}
-
-.progress-bar{display:none;margin-top:16px;width:280px;}
-.progress-bar.show{display:block;}
-.pb-label{font-size:12px;color:var(--cream3);display:flex;justify-content:space-between;margin-bottom:6px;}
-.pb-track{height:3px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;}
-.pb-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--purple2));border-radius:2px;width:0%;transition:width 0.3s ease;}
-
-.steps{display:none;flex-direction:column;gap:4px;margin-top:12px;width:280px;}
+.rp{display:flex;flex-direction:column;align-items:center;padding:24px 32px;overflow:hidden;}
+.canvas-wrap{width:280px;height:520px;border-radius:28px;border:2px solid rgba(255,255,255,0.08);overflow:hidden;position:relative;box-shadow:0 40px 80px rgba(0,0,0,0.8);background:#000;flex-shrink:0;}
+#wc{width:100%;height:100%;display:block;}
+.clock-ov{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);text-align:center;pointer-events:none;}
+.ck-t{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:600;color:white;text-shadow:0 2px 20px rgba(0,0,0,0.9);line-height:1;}
+.ck-d{font-size:12px;color:rgba(255,255,255,0.5);margin-top:3px;}
+.pb{display:none;margin-top:14px;width:280px;}
+.pb.show{display:block;}
+.pb-row{display:flex;justify-content:space-between;font-size:11px;color:var(--cream3);margin-bottom:5px;}
+.pb-track{height:2px;background:rgba(255,255,255,0.07);border-radius:1px;overflow:hidden;}
+.pb-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--purple2));border-radius:1px;width:0%;transition:width 0.3s ease;}
+.steps{display:none;flex-direction:column;gap:3px;margin-top:10px;width:280px;}
 .steps.show{display:flex;}
-.step-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--cream3);padding:5px 9px;border-radius:6px;background:rgba(255,255,255,0.02);}
-.step-row.active{color:var(--purple2);background:rgba(168,85,247,0.08);}
-.step-row.done{color:rgba(52,211,153,0.8);background:rgba(52,211,153,0.04);}
-
-.export-panel{display:none;margin-top:20px;width:280px;}
-.export-panel.show{display:block;}
-.export-title{font-size:10px;font-weight:500;letter-spacing:0.8px;text-transform:uppercase;color:var(--cream3);margin-bottom:10px;text-align:center;}
-.export-btns{display:flex;gap:7px;}
-.export-btn{flex:1;padding:10px;border-radius:var(--rs);border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:5px;}
-.eb-video{background:var(--purple);color:white;}
-.eb-video:hover{background:#6D28D9;}
-.eb-img{background:rgba(201,148,42,0.15);color:var(--gold);border:1px solid rgba(201,148,42,0.25);}
-.eb-img:hover{background:rgba(201,148,42,0.25);}
-.export-note{font-size:10px;color:rgba(240,234,248,0.25);text-align:center;margin-top:7px;}
-
-.toast{position:fixed;bottom:24px;right:24px;background:rgba(124,58,237,0.95);color:white;padding:10px 16px;border-radius:var(--rs);font-size:13px;font-weight:500;display:none;align-items:center;gap:7px;box-shadow:0 8px 24px rgba(0,0,0,0.4);z-index:999;max-width:320px;}
+.sr{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--cream3);padding:5px 8px;border-radius:5px;background:rgba(255,255,255,0.02);}
+.sr.active{color:var(--purple2);background:rgba(168,85,247,0.08);}
+.sr.done{color:rgba(52,211,153,0.8);background:rgba(52,211,153,0.04);}
+.exp{display:none;margin-top:16px;width:280px;}
+.exp.show{display:block;}
+.exp-t{font-size:10px;font-weight:500;letter-spacing:0.8px;text-transform:uppercase;color:var(--cream3);margin-bottom:8px;text-align:center;}
+.exp-btns{display:flex;gap:6px;}
+.eb{flex:1;padding:10px;border-radius:var(--rs);border:none;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.eb-v{background:var(--purple);color:white;}
+.eb-v:hover{background:#6D28D9;}
+.eb-i{background:rgba(201,148,42,0.15);color:var(--gold);border:1px solid rgba(201,148,42,0.2);}
+.eb-i:hover{background:rgba(201,148,42,0.25);}
+.exp-note{font-size:10px;color:rgba(237,232,248,0.2);text-align:center;margin-top:6px;}
+.toast{position:fixed;bottom:20px;right:20px;background:rgba(124,58,237,0.95);color:white;padding:10px 15px;border-radius:var(--rs);font-size:13px;font-weight:500;display:none;align-items:center;gap:6px;box-shadow:0 8px 24px rgba(0,0,0,0.4);z-index:999;}
 .toast.show{display:flex;}
-
-@media(max-width:768px){
-  .main{grid-template-columns:1fr;}
-  .right-panel{padding:20px;}
-  nav{padding:14px 20px;}
-}
+@media(max-width:768px){.main{grid-template-columns:1fr;}.rp{padding:16px;}nav{padding:12px 16px;}}
 </style>
 </head>
 <body>
-
 <nav>
-  <div class="logo">
-    <div class="logo-dot">🐾</div>
-    Any<em>Pet</em>
-  </div>
-  <div class="nav-tag">动态壁纸工坊</div>
-  <div class="nav-status">
-    <div class="status-dot"></div>
-    AI 服务正常
-  </div>
+  <div class="logo"><div class="logo-dot">🐾</div>Any<em>Pet</em></div>
+  <div class="nav-tag">壁纸工坊</div>
+  <div class="nav-r"><div class="dot-live"></div>AI 正常</div>
 </nav>
-
 <div class="main">
-
-  <!-- LEFT -->
-  <div class="left-panel">
-
-    <div>
-      <div class="sec-title">选择动物</div>
-      <div class="animal-grid" id="animalGrid">
-        <div class="ao sel" data-emoji="🐱" data-name="cat" onclick="selA(this)"><span class="em">🐱</span><div class="nm">猫</div></div>
-        <div class="ao" data-emoji="🐶" data-name="dog" onclick="selA(this)"><span class="em">🐶</span><div class="nm">狗</div></div>
-        <div class="ao" data-emoji="🐰" data-name="rabbit" onclick="selA(this)"><span class="em">🐰</span><div class="nm">兔子</div></div>
-        <div class="ao" data-emoji="🐹" data-name="hamster" onclick="selA(this)"><span class="em">🐹</span><div class="nm">仓鼠</div></div>
-        <div class="ao" data-emoji="🦜" data-name="parrot" onclick="selA(this)"><span class="em">🦜</span><div class="nm">鹦鹉</div></div>
-        <div class="ao" data-emoji="🦎" data-name="lizard" onclick="selA(this)"><span class="em">🦎</span><div class="nm">蜥蜴</div></div>
-        <div class="ao" data-emoji="🐢" data-name="turtle" onclick="selA(this)"><span class="em">🐢</span><div class="nm">龟</div></div>
-        <div class="ao" data-emoji="🐠" data-name="fish" onclick="selA(this)"><span class="em">🐠</span><div class="nm">观赏鱼</div></div>
-        <div class="ao" data-emoji="🐾" data-name="pet" onclick="selA(this)"><span class="em">🐾</span><div class="nm">其他</div></div>
-      </div>
-    </div>
-
-    <div>
-      <div class="sec-title">变装风格</div>
-      <div class="costume-list">
-        <div class="co sel" data-name="汉服宫装" data-prompt="wearing elegant Chinese hanfu royal costume, intricate gold embroidery, silk fabric, traditional Chinese imperial style, soft studio lighting" onclick="selC(this)"><span class="co-em">👘</span><div><div class="co-name">汉服宫装</div><div class="co-sub">古风 · 典雅</div></div></div>
-        <div class="co" data-name="宇航员" data-prompt="wearing NASA astronaut space suit with helmet visor open, space station background, zero gravity effect, highly detailed" onclick="selC(this)"><span class="co-em">🚀</span><div><div class="co-name">宇航员</div><div class="co-sub">科幻 · 探险</div></div></div>
-        <div class="co" data-name="骑士铠甲" data-prompt="wearing shining medieval knight armor, heroic fantasy pose, dramatic lighting, detailed metal texture" onclick="selC(this)"><span class="co-em">⚔️</span><div><div class="co-name">骑士铠甲</div><div class="co-sub">中世纪 · 勇猛</div></div></div>
-        <div class="co" data-name="和风浴衣" data-prompt="wearing traditional Japanese yukata kimono with cherry blossom pattern, soft pink bokeh background, elegant pose" onclick="selC(this)"><span class="co-em">🌸</span><div><div class="co-name">和风浴衣</div><div class="co-sub">日式 · 清新</div></div></div>
-        <div class="co" data-name="绅士礼服" data-prompt="wearing Victorian gentleman black suit, white shirt, bow tie, top hat, elegant portrait style" onclick="selC(this)"><span class="co-em">🎩</span><div><div class="co-name">绅士礼服</div><div class="co-sub">复古 · 优雅</div></div></div>
-        <div class="co" data-name="皇家礼冠" data-prompt="wearing royal crown and luxurious royal robe with jewels, golden throne background, majestic portrait" onclick="selC(this)"><span class="co-em">👑</span><div><div class="co-name">皇家礼冠</div><div class="co-sub">奢华 · 尊贵</div></div></div>
-      </div>
-    </div>
-
-    <div>
-      <div class="sec-title">上传宠物照片</div>
-      <div class="upload-zone" id="uploadZone">
-        <input type="file" accept="image/*" id="fileInput" onchange="handleFile(event)">
-        <div style="font-size:26px;margin-bottom:7px;opacity:0.4;">📷</div>
-        <div class="upload-hint"><strong>点击上传照片</strong>JPG · PNG · WEBP</div>
-      </div>
-    </div>
-
-    <div>
-      <div class="sec-title">动态效果</div>
-      <div class="effect-grid" id="effectGrid">
-        <div class="ef sel" data-effect="particles" onclick="selE(this)">
-          <div class="ef-preview" style="background:#0a0818;"><canvas id="pv-particles" width="130" height="52"></canvas></div>
-          <div class="ef-label">✦ 粒子飘散</div>
-        </div>
-        <div class="ef" data-effect="aurora" onclick="selE(this)">
-          <div class="ef-preview" style="background:#060f06;"><canvas id="pv-aurora" width="130" height="52"></canvas></div>
-          <div class="ef-label">✦ 极光渐变</div>
-        </div>
-        <div class="ef" data-effect="neon" onclick="selE(this)">
-          <div class="ef-preview" style="background:#050510;"><canvas id="pv-neon" width="130" height="52"></canvas></div>
-          <div class="ef-label">✦ 霓虹光晕</div>
-        </div>
-        <div class="ef" data-effect="stars" onclick="selE(this)">
-          <div class="ef-preview" style="background:#020208;"><canvas id="pv-stars" width="130" height="52"></canvas></div>
-          <div class="ef-label">✦ 星空闪烁</div>
-        </div>
-        <div class="ef" data-effect="ripple" onclick="selE(this)">
-          <div class="ef-preview" style="background:#020f0a;"><canvas id="pv-ripple" width="130" height="52"></canvas></div>
-          <div class="ef-label">✦ 涟漪扩散</div>
-        </div>
-        <div class="ef" data-effect="glitch" onclick="selE(this)">
-          <div class="ef-preview" style="background:#080508;"><canvas id="pv-glitch" width="130" height="52"></canvas></div>
-          <div class="ef-label">✦ 故障艺术</div>
-        </div>
-      </div>
-    </div>
-
-    <button class="gen-btn" id="genBtn" onclick="startGenerate()">✦ 生成动态壁纸</button>
-
-  </div>
-
-  <!-- RIGHT -->
-  <div class="right-panel">
-    <div style="font-size:10px;font-weight:500;letter-spacing:0.8px;text-transform:uppercase;color:rgba(240,234,248,0.25);margin-bottom:18px;">实时预览</div>
-
-    <div class="canvas-wrap">
-      <canvas id="wallpaperCanvas" width="1080" height="1920"></canvas>
-      <div class="clock-overlay">
-        <div class="clock-time" id="clockTime">17:08</div>
-        <div class="clock-date" id="clockDate">星期五 · 5月15日</div>
-      </div>
-    </div>
-
-    <div class="progress-bar" id="pb">
-      <div class="pb-label"><span id="pbMsg">准备中…</span><span id="pbPct">0%</span></div>
-      <div class="pb-track"><div class="pb-fill" id="pbFill"></div></div>
-    </div>
-
-    <div class="steps" id="steps">
-      <div class="step-row" id="s1"><span>🔍</span> 解析宠物特征</div>
-      <div class="step-row" id="s2"><span>🎨</span> AI 生成变装形象</div>
-      <div class="step-row" id="s3"><span>✨</span> 叠加动态特效</div>
-      <div class="step-row" id="s4"><span>📱</span> 渲染手机壁纸</div>
-    </div>
-
-    <div class="export-panel" id="exportPanel">
-      <div class="export-title">导出壁纸</div>
-      <div class="export-btns">
-        <button class="export-btn eb-video" onclick="exportVideo()">▶ 导出视频</button>
-        <button class="export-btn eb-img" onclick="exportImg()">↓ 静图 PNG</button>
-      </div>
-      <div class="export-note">视频可直接设为 Android 动态壁纸</div>
+<div class="lp">
+  <div>
+    <div class="sec-t">动物种类</div>
+    <div class="ag">
+      <div class="ao sel" data-n="cat" onclick="selA(this)"><span class="em">🐱</span><div class="nm">猫</div></div>
+      <div class="ao" data-n="dog" onclick="selA(this)"><span class="em">🐶</span><div class="nm">狗</div></div>
+      <div class="ao" data-n="rabbit" onclick="selA(this)"><span class="em">🐰</span><div class="nm">兔子</div></div>
+      <div class="ao" data-n="hamster" onclick="selA(this)"><span class="em">🐹</span><div class="nm">仓鼠</div></div>
+      <div class="ao" data-n="parrot" onclick="selA(this)"><span class="em">🦜</span><div class="nm">鹦鹉</div></div>
+      <div class="ao" data-n="lizard" onclick="selA(this)"><span class="em">🦎</span><div class="nm">蜥蜴</div></div>
+      <div class="ao" data-n="turtle" onclick="selA(this)"><span class="em">🐢</span><div class="nm">龟</div></div>
+      <div class="ao" data-n="fish" onclick="selA(this)"><span class="em">🐠</span><div class="nm">观赏鱼</div></div>
+      <div class="ao" data-n="pet" onclick="selA(this)"><span class="em">🐾</span><div class="nm">其他</div></div>
     </div>
   </div>
-
+  <div>
+    <div class="sec-t">艺术风格</div>
+    <div class="sg">
+      <div class="sc sel" data-p="anime art style, vibrant saturated colors, detailed linework, glowing magical aura, sakura petals floating, cinematic lighting, masterpiece illustration quality" data-bg="butterfly" onclick="selS(this)">
+        <div class="sc-thumb" style="background:linear-gradient(135deg,#1a0a2e,#2d1060);">🎌<span style="font-size:14px;position:absolute;bottom:6px;right:6px;">🦋</span></div>
+        <div class="sc-info"><div class="sc-name">动漫风</div><div class="sc-sub">蝴蝶 · 樱花</div></div>
+      </div>
+      <div class="sc" data-p="cyberpunk neon style, electric blue and purple neon lights, rain reflections, holographic overlay, dark futuristic city, high contrast dramatic lighting" data-bg="neon" onclick="selS(this)">
+        <div class="sc-thumb" style="background:linear-gradient(135deg,#050515,#0d0030);">🌆<span style="font-size:14px;position:absolute;bottom:6px;right:6px;">⚡</span></div>
+        <div class="sc-info"><div class="sc-name">赛博朋克</div><div class="sc-sub">霓虹 · 雨夜</div></div>
+      </div>
+      <div class="sc" data-p="classical oil painting style, rich impasto brushstrokes, warm golden Renaissance light, Rembrandt chiaroscuro, museum masterpiece portrait quality" data-bg="gold" onclick="selS(this)">
+        <div class="sc-thumb" style="background:linear-gradient(135deg,#1a0f00,#3d2000);">🖼️<span style="font-size:14px;position:absolute;bottom:6px;right:6px;">✨</span></div>
+        <div class="sc-info"><div class="sc-name">油画大师</div><div class="sc-sub">古典 · 典雅</div></div>
+      </div>
+      <div class="sc" data-p="epic fantasy magic art style, glowing mystical runes, ethereal light beams, stars and nebula background, enchanted atmosphere, digital fantasy illustration" data-bg="stars" onclick="selS(this)">
+        <div class="sc-thumb" style="background:linear-gradient(135deg,#000a1a,#001040);">🔮<span style="font-size:14px;position:absolute;bottom:6px;right:6px;">⭐</span></div>
+        <div class="sc-info"><div class="sc-name">奇幻魔法</div><div class="sc-sub">星辰 · 魔法</div></div>
+      </div>
+      <div class="sc" data-p="soft watercolor illustration style, delicate pastel washes, dreamy bokeh, gentle flower petals, romantic pink and lavender tones, artistic painting" data-bg="petals" onclick="selS(this)">
+        <div class="sc-thumb" style="background:linear-gradient(135deg,#1a0a0f,#2d0f20);">🌸<span style="font-size:14px;position:absolute;bottom:6px;right:6px;">🌷</span></div>
+        <div class="sc-info"><div class="sc-name">水彩插画</div><div class="sc-sub">花瓣 · 梦幻</div></div>
+      </div>
+      <div class="sc" data-p="dark gothic fantasy style, dramatic moonlight, deep purple shadows, mysterious night atmosphere, dark romantic aesthetic, dramatic chiaroscuro" data-bg="moon" onclick="selS(this)">
+        <div class="sc-thumb" style="background:linear-gradient(135deg,#080010,#150025);">🌙<span style="font-size:14px;position:absolute;bottom:6px;right:6px;">🖤</span></div>
+        <div class="sc-info"><div class="sc-name">暗黑哥特</div><div class="sc-sub">月光 · 神秘</div></div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="sec-t">上传宠物照片</div>
+    <div class="uz" id="uz">
+      <input type="file" accept="image/*" id="fi" onchange="handleFile(event)">
+      <div style="font-size:24px;margin-bottom:7px;opacity:0.35;">📷</div>
+      <div class="uh"><strong>点击上传照片</strong>JPG · PNG · WEBP</div>
+    </div>
+  </div>
+  <button class="gen-btn" id="gb" onclick="startGen()">✦ 生成壁纸</button>
 </div>
-
-<div class="toast" id="toast"><span id="toastMsg"></span></div>
-
+<div class="rp">
+  <div style="font-size:10px;font-weight:500;letter-spacing:0.8px;text-transform:uppercase;color:rgba(237,232,248,0.2);margin-bottom:16px;">实时预览</div>
+  <div class="canvas-wrap">
+    <canvas id="wc" width="1080" height="1920"></canvas>
+    <div class="clock-ov">
+      <div class="ck-t" id="ct">18:00</div>
+      <div class="ck-d" id="cd">星期五 · 5月16日</div>
+    </div>
+  </div>
+  <div class="pb" id="pb">
+    <div class="pb-row"><span id="pm">准备中…</span><span id="pp">0%</span></div>
+    <div class="pb-track"><div class="pb-fill" id="pf"></div></div>
+  </div>
+  <div class="steps" id="ss">
+    <div class="sr" id="s1"><span>🔍</span> 分析图片特征</div>
+    <div class="sr" id="s2"><span>🎨</span> AI 风格转换中</div>
+    <div class="sr" id="s3"><span>✨</span> 合成动态背景</div>
+    <div class="sr" id="s4"><span>📱</span> 渲染壁纸</div>
+  </div>
+  <div class="exp" id="ep">
+    <div class="exp-t">导出壁纸</div>
+    <div class="exp-btns">
+      <button class="eb eb-v" onclick="exportVideo()">▶ 导出视频</button>
+      <button class="eb eb-i" onclick="exportImg()">↓ 静图 PNG</button>
+    </div>
+    <div class="exp-note">视频可直接设为 Android 动态壁纸</div>
+  </div>
+</div>
+</div>
+<div class="toast" id="toast"><span id="tm"></span></div>
 <script>
-// ── STATE ──────────────────────────────────────────────────
-let animal = { emoji:'🐱', name:'cat' };
-let costume = { name:'汉服宫装', prompt:'wearing elegant Chinese hanfu royal costume, intricate gold embroidery, silk fabric, traditional Chinese imperial style' };
-let effect = 'particles';
-let uploadedBase64 = null;
-let petImg = null;
-let isGen = false;
-let raf = null;
-let particles=[], stars=[], ripples=[], auroraHue=0, neonPulse=0, glitchT=0;
+let animal='cat',stylePrompt='anime art style, vibrant saturated colors, detailed linework, glowing magical aura, sakura petals, cinematic lighting, masterpiece',styleBg='butterfly';
+let uploadedB64=null,petImg=null,isGen=false,raf=null,t=0;
+let butterflies=[],neonLines=[],goldP=[],starP=[],petals=[],moonP=[];
+const canvas=document.getElementById('wc'),ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;
 
-const canvas = document.getElementById('wallpaperCanvas');
-const ctx = canvas.getContext('2d');
+function tick(){const n=new Date(),h=String(n.getHours()).padStart(2,'0'),m=String(n.getMinutes()).padStart(2,'0');document.getElementById('ct').textContent=h+':'+m;const days=['日','一','二','三','四','五','六'];document.getElementById('cd').textContent='星期'+days[n.getDay()]+' · '+(n.getMonth()+1)+'月'+n.getDate()+'日';}
+tick();setInterval(tick,10000);
 
-// ── SELECTORS ──────────────────────────────────────────────
-function selA(el){ document.querySelectorAll('.ao').forEach(o=>o.classList.remove('sel')); el.classList.add('sel'); animal={emoji:el.dataset.emoji, name:el.dataset.name}; }
-function selC(el){ document.querySelectorAll('.co').forEach(o=>o.classList.remove('sel')); el.classList.add('sel'); costume={name:el.dataset.name, prompt:el.dataset.prompt}; }
-function selE(el){ document.querySelectorAll('.ef').forEach(o=>o.classList.remove('sel')); el.classList.add('sel'); effect=el.dataset.effect; initFx(); }
+function selA(el){document.querySelectorAll('.ao').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');animal=el.dataset.n;}
+function selS(el){document.querySelectorAll('.sc').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');stylePrompt=el.dataset.p;styleBg=el.dataset.bg;initP();}
 
-// ── UPLOAD ─────────────────────────────────────────────────
 function handleFile(e){
-  const file=e.target.files[0]; if(!file) return;
+  const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=ev=>{
-    uploadedBase64=ev.target.result;
-    const z=document.getElementById('uploadZone');
-    z.classList.add('has-img');
-    z.innerHTML=`<img class="upload-preview" src="${ev.target.result}"><button class="upload-change" onclick="resetUpload()">↺ 更换照片</button>`;
-    document.getElementById('exportPanel').classList.remove('show');
-    petImg=null;
+    uploadedB64=ev.target.result;
+    const uz=document.getElementById('uz');
+    uz.classList.add('has');
+    uz.innerHTML='<img class="up" src="'+ev.target.result+'"><button class="uch" onclick="resetUpload()">↺ 更换照片</button>';
+    document.getElementById('ep').classList.remove('show');petImg=null;
   };
   reader.readAsDataURL(file);
 }
-function resetUpload(){
-  uploadedBase64=null; petImg=null;
-  const z=document.getElementById('uploadZone');
-  z.classList.remove('has-img');
-  z.innerHTML=`<input type="file" accept="image/*" id="fileInput" onchange="handleFile(event)"><div style="font-size:26px;margin-bottom:7px;opacity:0.4;">📷</div><div class="upload-hint"><strong>点击上传照片</strong>JPG · PNG · WEBP</div>`;
-  document.getElementById('exportPanel').classList.remove('show');
-}
+function resetUpload(){uploadedB64=null;petImg=null;const uz=document.getElementById('uz');uz.classList.remove('has');uz.innerHTML='<input type="file" accept="image/*" id="fi" onchange="handleFile(event)"><div style="font-size:24px;margin-bottom:7px;opacity:0.35;">📷</div><div class="uh"><strong>点击上传照片</strong>JPG · PNG · WEBP</div>';document.getElementById('ep').classList.remove('show');}
 
-// ── CLOCK ──────────────────────────────────────────────────
-function tick(){
-  const n=new Date(), h=String(n.getHours()).padStart(2,'0'), m=String(n.getMinutes()).padStart(2,'0');
-  document.getElementById('clockTime').textContent=h+':'+m;
-  const days=['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
-  document.getElementById('clockDate').textContent=days[n.getDay()]+' · '+(n.getMonth()+1)+'月'+n.getDate()+'日';
-}
-tick(); setInterval(tick,10000);
-
-// ── GENERATE ───────────────────────────────────────────────
-async function startGenerate(){
-  if(isGen) return;
-  if(!uploadedBase64){ showToast('请先上传一张宠物照片'); return; }
+async function startGen(){
+  if(isGen)return;
+  if(!uploadedB64){showToast('请先上传一张宠物照片');return;}
   isGen=true;
-  const btn=document.getElementById('genBtn');
-  btn.disabled=true; btn.innerHTML='<span class="spin">⟳</span> 生成中…';
-  document.getElementById('exportPanel').classList.remove('show');
-
-  const pb=document.getElementById('pb'), fill=document.getElementById('pbFill');
-  const pmsg=document.getElementById('pbMsg'), ppct=document.getElementById('pbPct');
-  const ss=document.getElementById('steps');
-  pb.classList.add('show'); ss.classList.add('show');
-
-  function prog(pct,msg){ fill.style.width=pct+'%'; ppct.textContent=pct+'%'; pmsg.textContent=msg; }
-  function step(n){ for(let i=1;i<=4;i++){ const el=document.getElementById('s'+i); el.classList.remove('active','done'); if(i<n) el.classList.add('done'); if(i===n) el.classList.add('active'); } }
-
-  try {
-    step(1); prog(10,'解析宠物特征…');
-    await wait(700);
-
-    step(2); prog(25,'AI 生成变装形象（约 20~40 秒）…');
-
-    // 调用后端 API — IP-Adapter 保留宠物特征
-    const prompt = `${costume.prompt}, highly detailed, professional portrait, 4k quality, soft lighting`;
-    const resp = await fetch('/api/generate', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ prompt, image: uploadedBase64, animal: animal.name })
-    });
-
-    if(!resp.ok){
-      const err=await resp.json();
-      throw new Error(err.error||'API 请求失败');
-    }
-
-    const data = await resp.json();
-    const imgUrl = data.output;
-
-    prog(60,'加载生成图像…');
-    petImg = await loadImg(imgUrl);
-
-    step(3); prog(75,'叠加动态特效…');
-    await wait(500);
-    initFx();
-
-    step(4); prog(90,'渲染壁纸…');
-    await wait(400);
-
-    // 验证 petImg 确实有值
-    console.log('petImg loaded:', petImg ? petImg.width+'x'+petImg.height : 'NULL');
-    startAnim();
-    prog(100,'完成！'); step(5);
-    await wait(600);
-
-    pb.classList.remove('show'); ss.classList.remove('show');
-    document.getElementById('exportPanel').classList.add('show');
-    showToast('✦ 壁纸生成成功！点击导出');
-
-  } catch(err){
-    pb.classList.remove('show'); ss.classList.remove('show');
-    showToast('❌ 失败：'+err.message);
-    console.error(err);
-  }
-
-  btn.disabled=false; btn.innerHTML='✦ 重新生成'; isGen=false;
+  const btn=document.getElementById('gb');
+  btn.disabled=true;btn.innerHTML='<span class="spin">⟳</span> 生成中…';
+  document.getElementById('ep').classList.remove('show');
+  const pb=document.getElementById('pb'),pf=document.getElementById('pf'),pm=document.getElementById('pm'),pp=document.getElementById('pp'),ss=document.getElementById('ss');
+  pb.classList.add('show');ss.classList.add('show');
+  function prog(pct,msg){pf.style.width=pct+'%';pp.textContent=pct+'%';pm.textContent=msg;}
+  function step(n){for(let i=1;i<=4;i++){const el=document.getElementById('s'+i);el.classList.remove('active','done');if(i<n)el.classList.add('done');if(i===n)el.classList.add('active');}}
+  try{
+    step(1);prog(10,'分析图片特征…');await wait(600);
+    step(2);prog(25,'AI 风格转换中（20~40 秒）…');
+    const fullPrompt=stylePrompt+', '+animal+' pet portrait, highly detailed fur and features, professional quality, sharp focus';
+    const resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:fullPrompt,image:uploadedB64})});
+    if(!resp.ok){const err=await resp.json();throw new Error(err.error||'生成失败');}
+    const data=await resp.json();
+    prog(65,'加载图像…');
+    petImg=await loadImg(data.output);
+    step(3);prog(80,'合成动态背景…');initP();await wait(400);
+    step(4);prog(95,'渲染壁纸…');startAnim();await wait(300);
+    prog(100,'完成！');
+    pb.classList.remove('show');ss.classList.remove('show');
+    document.getElementById('ep').classList.add('show');
+    showToast('✦ 壁纸生成成功！');
+  }catch(err){pb.classList.remove('show');ss.classList.remove('show');showToast('❌ '+err.message);console.error(err);}
+  btn.disabled=false;btn.innerHTML='✦ 重新生成';isGen=false;
 }
 
-// ── REPLICATE POLLING (fallback) ───────────────────────────
-async function loadImg(src){
-  return new Promise((res,rej)=>{
-    const img = new Image();
-    img.onload = () => res(img);
-    img.onerror = (e) => rej(new Error('图像加载失败: ' + src.substring(0,50)));
-    // base64 直接赋值，不需要 crossOrigin
-    if (src.startsWith('data:')) {
-      img.src = src;
-    } else {
-      img.crossOrigin = 'anonymous';
-      img.src = src;
-    }
-  });
+function loadImg(src){return new Promise((res,rej)=>{const img=new Image();img.onload=()=>res(img);img.onerror=()=>rej(new Error('图像加载失败'));img.src=src;});}
+
+function initP(){
+  butterflies=[];neonLines=[];goldP=[];starP=[];petals=[];moonP=[];
+  if(styleBg==='butterfly'||styleBg==='petals'){for(let i=0;i<40;i++)butterflies.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*1.2,vy:-Math.random()*.8-.3,size:Math.random()*14+6,color:['#a78bfa','#818cf8','#f472b6','#34d399','#60a5fa'][Math.floor(Math.random()*5)],phase:Math.random()*Math.PI*2,speed:Math.random()*.05+.02,life:Math.random(),op:Math.random()*.7+.3});}
+  if(styleBg==='neon'){for(let i=0;i<25;i++)neonLines.push({x:Math.random()*W,y:Math.random()*H,len:Math.random()*250+80,angle:Math.random()*Math.PI*2,color:['#00ffff','#ff00ff','#7c3aed','#0ea5e9'][Math.floor(Math.random()*4)],phase:Math.random()*Math.PI*2});}
+  if(styleBg==='gold'){for(let i=0;i<70;i++)goldP.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.5,vy:-Math.random()*.4-.1,size:Math.random()*4+1,phase:Math.random()*Math.PI*2,life:Math.random()});}
+  if(styleBg==='stars'){for(let i=0;i<130;i++)starP.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*3+.5,phase:Math.random()*Math.PI*2,speed:Math.random()*.02+.008});for(let i=0;i<6;i++)starP.push({x:Math.random()*W,y:Math.random()*H*.3,r:2,phase:0,speed:.1,vx:Math.random()*8+4,vy:Math.random()*4+2,isShooting:true,life:0});}
+  if(styleBg==='moon'){for(let i=0;i<55;i++)moonP.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:-Math.random()*.6-.1,size:Math.random()*3+.5,phase:Math.random()*Math.PI*2,color:Math.random()>.5?'#7c3aed':'#4f46e5',life:Math.random()});}
 }
 
-// ── ANIMATION ──────────────────────────────────────────────
-function initFx(){
-  const W=canvas.width, H=canvas.height;
-  particles=[]; stars=[]; ripples=[];
-  if(effect==='particles'){ for(let i=0;i<80;i++) particles.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*1.5,vy:-Math.random()*2-.5,size:Math.random()*4+1,color:['#a78bfa','#60a5fa','#f472b6','#34d399','#fbbf24'][Math.floor(Math.random()*5)],life:Math.random()}); }
-  if(effect==='stars'){ for(let i=0;i<150;i++) stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*3+.5,phase:Math.random()*Math.PI*2,speed:Math.random()*.03+.01}); }
-  if(effect==='ripple'){ for(let i=0;i<3;i++) ripples.push({r:W*.3*i,maxR:W*.85,speed:3+i}); }
-}
-
-function startAnim(){
-  if(raf) cancelAnimationFrame(raf);
-  function loop(){ drawFrame(); raf=requestAnimationFrame(loop); }
-  loop();
-}
+function startAnim(){if(raf)cancelAnimationFrame(raf);function loop(){t=Date.now()/1000;drawFrame();raf=requestAnimationFrame(loop);}loop();}
 
 function drawFrame(){
-  const W=canvas.width, H=canvas.height, t=Date.now()/1000;
   ctx.clearRect(0,0,W,H);
+  // bg
+  let bg;
+  const bgs={butterfly:'#0d0520,#1a0840,#0d1535',neon:'#020010,#040020,#020015',gold:'#100800,#1e1000,#0a0500',stars:'#020010,#000208',petals:'#1a0510,#250820,#100310',moon:'#04000f,#000008'};
+  const c=bgs[styleBg]||bgs.butterfly;
+  const cols=c.split(',');
+  bg=ctx.createLinearGradient(0,0,W,H);
+  if(cols.length===3){bg.addColorStop(0,cols[0]);bg.addColorStop(.5,cols[1]);bg.addColorStop(1,cols[2]);}
+  else{bg.addColorStop(0,cols[0]);bg.addColorStop(1,cols[1]);}
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
 
-  // Always draw background first
-  drawBg(W,H,t);
-
-  if(petImg && petImg.complete && petImg.naturalWidth > 0){
-    // Pet image fills center of canvas
-    const scale = Math.max(W/petImg.naturalWidth, H/petImg.naturalHeight);
-    const iw = petImg.naturalWidth * scale;
-    const ih = petImg.naturalHeight * scale;
-    const ix = (W - iw) / 2;
-    const iy = (H - ih) / 2;
-    const floatY = Math.sin(t * 0.8) * 10;
-
-    ctx.save();
-    ctx.globalAlpha = 1;
-    ctx.drawImage(petImg, ix, iy + floatY, iw, ih);
-    ctx.restore();
-
-    // Dark overlay at bottom for clock
-    const grad = ctx.createLinearGradient(0, H*0.6, 0, H);
-    grad.addColorStop(0, 'transparent');
-    grad.addColorStop(1, 'rgba(0,0,0,0.8)');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, W, H);
-
-    // Effect particles on top
-    drawFg(W,H,t);
-
-    // Costume emoji top right
-    const ce = document.querySelector('.co.sel .co-em');
-    if(ce){
-      ctx.font = Math.round(W*0.12)+'px serif';
-      ctx.textAlign = 'right';
-      ctx.shadowColor='rgba(0,0,0,0.6)'; ctx.shadowBlur=8;
-      ctx.fillText(ce.textContent, W-20, 80);
-      ctx.shadowBlur=0;
-    }
-
-  } else {
-    // No pet image — show animal emoji placeholder
-    const floatY = Math.sin(t*1.2)*20;
-    ctx.font = Math.round(W*0.25)+'px serif';
-    ctx.textAlign='center'; ctx.globalAlpha=0.6;
-    ctx.fillText(animal.emoji, W/2, H*0.45+floatY);
-    ctx.globalAlpha=1;
-    drawFg(W,H,t);
-
-    // bottom gradient
-    const grad=ctx.createLinearGradient(0,H*0.65,0,H);
-    grad.addColorStop(0,'transparent'); grad.addColorStop(1,'rgba(0,0,0,0.7)');
-    ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
+  // pet image fullscreen
+  if(petImg&&petImg.complete&&petImg.naturalWidth>0){
+    const scale=Math.max(W/petImg.naturalWidth,H/petImg.naturalHeight);
+    const iw=petImg.naturalWidth*scale,ih=petImg.naturalHeight*scale;
+    ctx.drawImage(petImg,(W-iw)/2,(H-ih)/2,iw,ih);
   }
 
-  glitchT++;
+  // style color overlay
+  const tints={butterfly:'rgba(100,40,180,0.2)',neon:'rgba(0,180,255,0.1)',gold:'rgba(180,120,10,0.18)',stars:'rgba(30,10,100,0.22)',petals:'rgba(180,60,100,0.18)',moon:'rgba(60,20,160,0.22)'};
+  ctx.fillStyle=tints[styleBg]||'rgba(80,40,160,0.18)';ctx.fillRect(0,0,W,H);
+  // vignette
+  const vig=ctx.createRadialGradient(W/2,H*.4,H*.18,W/2,H*.4,H*.7);
+  vig.addColorStop(0,'transparent');vig.addColorStop(1,'rgba(0,0,0,0.6)');
+  ctx.fillStyle=vig;ctx.fillRect(0,0,W,H);
+
+  // particles
+  drawP();
+
+  // bottom gradient for clock
+  const g=ctx.createLinearGradient(0,H*.58,0,H);
+  g.addColorStop(0,'transparent');g.addColorStop(1,'rgba(0,0,0,0.85)');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
 }
 
-function drawBg(W,H,t){
-  if(effect==='particles'){
-    const g=ctx.createLinearGradient(0,0,W,H); g.addColorStop(0,'#0a0818'); g.addColorStop(.5,'#160c30'); g.addColorStop(1,'#0a1428');
-    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-  } else if(effect==='aurora'){
-    auroraHue=(auroraHue+.25)%360;
-    const g=ctx.createLinearGradient(0,0,W,H);
-    g.addColorStop(0,`hsl(${auroraHue},60%,8%)`); g.addColorStop(.5,`hsl(${(auroraHue+50)%360},50%,12%)`); g.addColorStop(1,`hsl(${(auroraHue+90)%360},55%,6%)`);
-    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-    for(let i=0;i<4;i++){ ctx.save(); ctx.globalAlpha=.1+i*.03; const gr=ctx.createLinearGradient(0,H*(.1+i*.2),W,H*(.3+i*.15)); gr.addColorStop(0,`hsla(${(auroraHue+i*35)%360},80%,60%,0)`); gr.addColorStop(.5,`hsla(${(auroraHue+i*35)%360},80%,60%,.5)`); gr.addColorStop(1,`hsla(${(auroraHue+i*35)%360},80%,60%,0)`); ctx.fillStyle=gr; ctx.fillRect(0,0,W,H); ctx.restore(); }
-  } else if(effect==='neon'){
-    ctx.fillStyle='#050510'; ctx.fillRect(0,0,W,H);
-    neonPulse=(neonPulse+.04)%(Math.PI*2);
-    const g=ctx.createRadialGradient(W/2,H*.45,0,W/2,H*.45,H*.45);
-    g.addColorStop(0,`rgba(168,85,247,${.1+Math.sin(neonPulse)*.05})`); g.addColorStop(1,'transparent');
-    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-    ctx.strokeStyle='rgba(168,85,247,.06)'; ctx.lineWidth=1;
-    for(let x=0;x<W;x+=60){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
-    for(let y=0;y<H;y+=60){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
-  } else if(effect==='stars'){
-    ctx.fillStyle='#020208'; ctx.fillRect(0,0,W,H);
-    const n=ctx.createRadialGradient(W*.3,H*.3,0,W*.3,H*.3,W*.5); n.addColorStop(0,'rgba(80,30,120,.18)'); n.addColorStop(1,'transparent'); ctx.fillStyle=n; ctx.fillRect(0,0,W,H);
-  } else if(effect==='ripple'){
-    const g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#020f0a'); g.addColorStop(1,'#010806'); ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-  } else if(effect==='glitch'){
-    ctx.fillStyle='#080508'; ctx.fillRect(0,0,W,H);
-    ctx.fillStyle='rgba(255,255,255,.015)'; for(let y=0;y<H;y+=4) ctx.fillRect(0,y,W,2);
-  }
-}
-
-function drawFg(W,H,t){
-  if(effect==='particles'){
-    particles.forEach(p=>{
-      p.x+=p.vx; p.y+=p.vy; p.life+=.007;
-      if(p.life>1){p.life=0;p.x=Math.random()*W;p.y=H+10;}
-      const a=Math.sin(p.life*Math.PI)*.8;
-      ctx.save(); ctx.globalAlpha=a; ctx.fillStyle=p.color; ctx.shadowColor=p.color; ctx.shadowBlur=6;
-      ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill(); ctx.restore();
+function drawP(){
+  if(styleBg==='butterfly'||styleBg==='petals'){
+    butterflies.forEach(b=>{
+      b.x+=b.vx+Math.sin(t*b.speed+b.phase)*.8;b.y+=b.vy;b.phase+=b.speed;
+      if(b.y<-20){b.y=H+20;b.x=Math.random()*W;}
+      if(b.x<-20||b.x>W+20){b.x=Math.random()*W;b.y=H+20;}
+      const flap=Math.abs(Math.sin(t*4+b.phase));
+      ctx.save();ctx.globalAlpha=b.op*(.5+flap*.5);ctx.fillStyle=b.color;ctx.shadowColor=b.color;ctx.shadowBlur=10;
+      ctx.translate(b.x,b.y);
+      ctx.beginPath();ctx.ellipse(-b.size*flap,0,b.size,b.size*.65,-.3,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.ellipse(b.size*flap,0,b.size,b.size*.65,.3,0,Math.PI*2);ctx.fill();
+      ctx.restore();
     });
-  } else if(effect==='stars'){
-    stars.forEach(s=>{ s.phase+=s.speed; const a=(Math.sin(s.phase)+1)/2*.9+.1; ctx.save(); ctx.globalAlpha=a; ctx.fillStyle='white'; ctx.shadowColor='white'; ctx.shadowBlur=s.r*3; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill(); ctx.restore(); });
-  } else if(effect==='ripple'){
-    ripples.forEach(r=>{ r.r+=r.speed; if(r.r>r.maxR) r.r=0; const a=(1-r.r/r.maxR)*.45; ctx.save(); ctx.globalAlpha=a; ctx.strokeStyle='#34d399'; ctx.lineWidth=2; ctx.shadowColor='#34d399'; ctx.shadowBlur=10; ctx.beginPath(); ctx.arc(W/2,H*.47,r.r,0,Math.PI*2); ctx.stroke(); ctx.restore(); });
-  } else if(effect==='neon'){
-    const p=.4+Math.sin(neonPulse)*.2;
-    [[W*.1,H*.08],[W*.9,H*.08],[W*.1,H*.92],[W*.9,H*.92]].forEach(([cx,cy])=>{ ctx.save(); ctx.globalAlpha=p; ctx.strokeStyle='#a855f7'; ctx.lineWidth=1.5; ctx.shadowColor='#a855f7'; ctx.shadowBlur=18; ctx.beginPath(); ctx.arc(cx,cy,28,0,Math.PI*2); ctx.stroke(); ctx.restore(); });
-  } else if(effect==='glitch'&&glitchT%40<4){
-    for(let i=0;i<5;i++){ const y=Math.random()*H,h=Math.random()*25+4,sh=(Math.random()-.5)*50; ctx.save(); ctx.globalAlpha=.4; if(petImg) ctx.drawImage(canvas,0,y,W,h,sh,y,W,h); ctx.fillStyle=`rgba(255,0,80,.2)`; ctx.fillRect(sh,y,W,h); ctx.restore(); }
+  } else if(styleBg==='neon'){
+    neonLines.forEach(l=>{
+      l.phase+=.015;
+      ctx.save();ctx.globalAlpha=.12+Math.abs(Math.sin(l.phase))*.1;
+      ctx.strokeStyle=l.color;ctx.lineWidth=1.5;ctx.shadowColor=l.color;ctx.shadowBlur=18;
+      ctx.beginPath();ctx.moveTo(l.x,l.y);ctx.lineTo(l.x+Math.cos(l.angle)*l.len,l.y+Math.sin(l.angle)*l.len);ctx.stroke();
+      ctx.globalAlpha=.06+Math.abs(Math.sin(l.phase))*.06;
+      const gr=ctx.createRadialGradient(l.x,l.y,0,l.x,l.y,90);
+      gr.addColorStop(0,l.color);gr.addColorStop(1,'transparent');
+      ctx.fillStyle=gr;ctx.fillRect(0,0,W,H);ctx.restore();
+    });
+  } else if(styleBg==='gold'){
+    goldP.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.life+=.005;p.phase+=.04;
+      if(p.life>1){p.life=0;p.x=Math.random()*W;p.y=H+10;}
+      const a=Math.sin(p.life*Math.PI)*.8,hue=40+Math.sin(p.phase)*20;
+      ctx.save();ctx.globalAlpha=a;ctx.fillStyle='hsl('+hue+',90%,65%)';ctx.shadowColor='hsl('+hue+',90%,65%)';ctx.shadowBlur=6;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();ctx.restore();
+    });
+  } else if(styleBg==='stars'){
+    starP.forEach(s=>{
+      if(s.isShooting){
+        s.x+=s.vx;s.y+=s.vy;s.life+=.015;
+        if(s.x>W||s.y>H||s.life>1){s.x=Math.random()*W*.5;s.y=Math.random()*H*.2;s.life=0;}
+        ctx.save();ctx.globalAlpha=(1-s.life)*.8;ctx.strokeStyle='white';ctx.lineWidth=1.5;ctx.shadowColor='white';ctx.shadowBlur=8;
+        ctx.beginPath();ctx.moveTo(s.x,s.y);ctx.lineTo(s.x-s.vx*8,s.y-s.vy*8);ctx.stroke();ctx.restore();
+      } else {
+        s.phase+=s.speed;
+        ctx.save();ctx.globalAlpha=(.4+Math.sin(s.phase)*.4);ctx.fillStyle='white';ctx.shadowColor='white';ctx.shadowBlur=s.r*3;
+        ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();ctx.restore();
+      }
+    });
+  } else if(styleBg==='moon'){
+    ctx.save();const mg=ctx.createRadialGradient(W*.75,H*.08,0,W*.75,H*.08,220);mg.addColorStop(0,'rgba(180,160,255,0.3)');mg.addColorStop(1,'transparent');ctx.fillStyle=mg;ctx.fillRect(0,0,W,H);ctx.restore();
+    moonP.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.life+=.004;p.phase+=.03;
+      if(p.life>1){p.life=0;p.x=Math.random()*W;p.y=H+10;}
+      ctx.save();ctx.globalAlpha=Math.sin(p.life*Math.PI)*.7;ctx.fillStyle=p.color;ctx.shadowColor=p.color;ctx.shadowBlur=8;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();ctx.restore();
+    });
   }
 }
 
-function glowCol(a){
-  const m={particles:`rgba(124,58,237,${a})`,aurora:`rgba(52,211,153,${a})`,neon:`rgba(168,85,247,${a})`,stars:`rgba(99,40,200,${a})`,ripple:`rgba(16,185,129,${a})`,glitch:`rgba(220,38,38,${a})`};
-  return m[effect]||`rgba(124,58,237,${a})`;
-}
-
-// ── EXPORT ─────────────────────────────────────────────────
-function exportImg(){
-  const a=document.createElement('a'); a.download='anypet-wallpaper.png'; a.href=canvas.toDataURL('image/png'); a.click();
-  showToast('✓ 静图已下载');
-}
+function exportImg(){const a=document.createElement('a');a.download='anypet-wallpaper.png';a.href=canvas.toDataURL('image/png');a.click();showToast('✓ 已下载！');}
 function exportVideo(){
-  if(!window.MediaRecorder){ showToast('请使用 Chrome 浏览器'); return; }
-  const chunks=[], stream=canvas.captureStream(30);
+  if(!window.MediaRecorder){showToast('请用 Chrome 浏览器');return;}
+  const chunks=[],stream=canvas.captureStream(30);
   const mr=new MediaRecorder(stream,{mimeType:'video/webm;codecs=vp9'});
-  mr.ondataavailable=e=>{ if(e.data.size>0) chunks.push(e.data); };
-  mr.onstop=()=>{ const b=new Blob(chunks,{type:'video/webm'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download='anypet-wallpaper.webm'; a.click(); showToast('✓ 视频已下载！Android 可直接设为动态壁纸'); };
-  mr.start(); showToast('⏺ 录制 5 秒中…');
-  setTimeout(()=>mr.stop(),5000);
+  mr.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data);};
+  mr.onstop=()=>{const b=new Blob(chunks,{type:'video/webm'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='anypet-wallpaper.webm';a.click();showToast('✓ 视频已下载！可设为 Android 动态壁纸');};
+  mr.start();showToast('⏺ 录制 6 秒视频中…');setTimeout(()=>mr.stop(),6000);
 }
+function wait(ms){return new Promise(r=>setTimeout(r,ms));}
+function showToast(msg){const t=document.getElementById('toast');document.getElementById('tm').textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
 
-// ── PREVIEW CANVASES ───────────────────────────────────────
-function runPrev(id,fn){
-  const c=document.getElementById('pv-'+id); if(!c) return;
-  const cx=c.getContext('2d'); let s=null;
-  function fr(ts){ if(!s)s=ts; cx.clearRect(0,0,c.width,c.height); cx.globalAlpha=1; cx.shadowBlur=0; cx.textAlign='center'; fn(cx,c.width,c.height,(ts-s)/1000); requestAnimationFrame(fr); }
-  requestAnimationFrame(fr);
-}
-const pvAnimal='🐱';
-runPrev('particles',(cx,W,H,t)=>{ cx.fillStyle='#0a0818';cx.fillRect(0,0,W,H);const cols=['#a78bfa','#60a5fa','#f472b6','#34d399'];for(let i=0;i<10;i++){const x=(i*37+t*30)%W,y=H-(t*35+i*18)%H;cx.globalAlpha=.7;cx.fillStyle=cols[i%4];cx.shadowColor=cols[i%4];cx.shadowBlur=4;cx.beginPath();cx.arc(x,y,2,0,Math.PI*2);cx.fill();}cx.globalAlpha=1;cx.font='18px serif';cx.fillText(pvAnimal,W/2,H/2+6); });
-runPrev('aurora',(cx,W,H,t)=>{ const h=(t*25)%360;const bg=cx.createLinearGradient(0,0,W,H);bg.addColorStop(0,`hsl(${h},60%,10%)`);bg.addColorStop(1,`hsl(${(h+80)%360},55%,8%)`);cx.fillStyle=bg;cx.fillRect(0,0,W,H);cx.globalAlpha=.25;cx.fillStyle=`hsl(${h},80%,60%)`;cx.fillRect(0,H*.3,W,H*.2);cx.globalAlpha=1;cx.font='18px serif';cx.fillText('🐹',W/2,H/2+6); });
-runPrev('neon',(cx,W,H,t)=>{ cx.fillStyle='#050510';cx.fillRect(0,0,W,H);const p=.5+Math.sin(t*3)*.3;cx.globalAlpha=p*.15;cx.fillStyle='#a855f7';cx.beginPath();cx.arc(W/2,H/2,H*.35,0,Math.PI*2);cx.fill();cx.globalAlpha=p;cx.strokeStyle='#a855f7';cx.lineWidth=1.5;cx.shadowColor='#a855f7';cx.shadowBlur=8;cx.beginPath();cx.arc(W/2,H/2,H*.35,0,Math.PI*2);cx.stroke();cx.globalAlpha=1;cx.font='16px serif';cx.fillText('🐰',W/2,H/2+5); });
-runPrev('stars',(cx,W,H,t)=>{ cx.fillStyle='#020208';cx.fillRect(0,0,W,H);for(let i=0;i<18;i++){const x=(i*31+7)%W,y=(i*17+3)%H,a=.3+Math.abs(Math.sin(t*2+i))*.7;cx.globalAlpha=a;cx.fillStyle='white';cx.shadowColor='white';cx.shadowBlur=3;cx.beginPath();cx.arc(x,y,1.2,0,Math.PI*2);cx.fill();}cx.globalAlpha=1;cx.font='16px serif';cx.fillText('🦜',W/2,H/2+5); });
-runPrev('ripple',(cx,W,H,t)=>{ cx.fillStyle='#020f0a';cx.fillRect(0,0,W,H);for(let i=0;i<3;i++){const r=(t*35+i*18)%60+5,a=(1-r/65)*.6;cx.globalAlpha=a;cx.strokeStyle='#34d399';cx.lineWidth=1.5;cx.shadowColor='#34d399';cx.shadowBlur=6;cx.beginPath();cx.arc(W/2,H/2,r,0,Math.PI*2);cx.stroke();}cx.globalAlpha=1;cx.font='16px serif';cx.fillText('🦎',W/2,H/2+5); });
-runPrev('glitch',(cx,W,H,t)=>{ cx.fillStyle='#080508';cx.fillRect(0,0,W,H);cx.font='16px serif';cx.globalAlpha=1;cx.fillText('🐶',W/2,H/2+5);if(Math.floor(t*4)%6===0){cx.globalAlpha=.4;cx.fillStyle='rgba(255,0,80,.3)';cx.fillRect(0,H*.3+Math.random()*10,W,7);} });
-
-// ── INIT DEFAULT ANIM ──────────────────────────────────────
-initFx();
-function defaultLoop(){ drawFrame(); raf=requestAnimationFrame(defaultLoop); }
-defaultLoop();
-
-// ── UTILS ──────────────────────────────────────────────────
-function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
-function showToast(msg){ const t=document.getElementById('toast'); document.getElementById('toastMsg').textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3800); }
+initP();startAnim();
 </script>
 </body>
 </html>
