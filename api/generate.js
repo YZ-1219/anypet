@@ -1,4 +1,4 @@
-// api/generate.js — 风格转换版本，用 fal.ai Flux Redux
+// api/generate.js — 抠图 + 动漫背景合成
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -11,42 +11,65 @@ export default async function handler(req, res) {
   if (!falKey) return res.status(500).json({ error: 'FAL API Key 未配置' });
 
   try {
-    const { prompt, image } = req.body;
+    const { image, bgPrompt } = req.body;
     if (!image) return res.status(400).json({ error: '请上传图片' });
 
-    // Flux Redux — 风格迁移，保留宠物主体
-    const resp = await fetch('https://fal.run/fal-ai/flux-pro/v1/redux', {
+    // ── STEP 1: 去除背景，抠出宠物 ──
+    console.log('Step 1: removing background...');
+    const bgRemoveResp = await fetch('https://fal.run/fal-ai/birefnet', {
       method: 'POST',
-      headers: {
-        'Authorization': `Key ${falKey}`,
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Authorization': `Key ${falKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image_url: image, model: 'General Use (Light)', output_format: 'png' })
+    });
+
+    if (!bgRemoveResp.ok) {
+      const err = await bgRemoveResp.json().catch(() => ({}));
+      throw new Error('抠图失败: ' + (err.detail || err.message || bgRemoveResp.status));
+    }
+
+    const bgRemoveData = await bgRemoveResp.json();
+    const petCutoutUrl = bgRemoveData?.image?.url || bgRemoveData?.images?.[0]?.url;
+    if (!petCutoutUrl) throw new Error('抠图未返回结果');
+    console.log('Step 1 done:', petCutoutUrl);
+
+    // ── STEP 2: 生成动漫风格背景 ──
+    console.log('Step 2: generating anime background...');
+    const bgResp = await fetch('https://fal.run/fal-ai/flux/schnell', {
+      method: 'POST',
+      headers: { 'Authorization': `Key ${falKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        image_url: image,
-        prompt: prompt,
-        num_inference_steps: 28,
-        guidance_scale: 3.5,
+        prompt: bgPrompt + ', no animals, no pets, no people, empty scene, highly detailed, masterpiece',
         image_size: { width: 768, height: 1024 },
+        num_inference_steps: 4,
+        num_images: 1,
       })
     });
 
-    if (!resp.ok) {
-      const err = await resp.json().catch(() => ({}));
-      throw new Error(err.detail || err.message || 'fal.ai 调用失败');
+    if (!bgResp.ok) {
+      const err = await bgResp.json().catch(() => ({}));
+      throw new Error('背景生成失败: ' + (err.detail || err.message || bgResp.status));
     }
 
-    const data = await resp.json();
-    const imageUrl = data?.images?.[0]?.url || data?.image?.url;
-    if (!imageUrl) throw new Error('未获得图片 URL');
+    const bgData = await bgResp.json();
+    const bgUrl = bgData?.images?.[0]?.url;
+    if (!bgUrl) throw new Error('背景未返回结果');
+    console.log('Step 2 done:', bgUrl);
 
-    // 下载转 base64
-    const imgResp = await fetch(imageUrl);
-    if (!imgResp.ok) throw new Error('图片下载失败');
-    const buffer = await imgResp.arrayBuffer();
-    const base64 = Buffer.from(buffer).toString('base64');
-    const ct = imgResp.headers.get('content-type') || 'image/jpeg';
+    // ── STEP 3: 下载两张图，返回给前端合成 ──
+    const [petResp, bgImgResp] = await Promise.all([
+      fetch(petCutoutUrl),
+      fetch(bgUrl)
+    ]);
 
-    return res.status(200).json({ output: `data:${ct};base64,${base64}` });
+    const [petBuf, bgBuf] = await Promise.all([
+      petResp.arrayBuffer(),
+      bgImgResp.arrayBuffer()
+    ]);
+
+    const petB64 = 'data:image/png;base64,' + Buffer.from(petBuf).toString('base64');
+    const bgB64 = 'data:image/jpeg;base64,' + Buffer.from(bgBuf).toString('base64');
+
+    return res.status(200).json({ pet: petB64, background: bgB64 });
 
   } catch (err) {
     console.error('Error:', err.message);
