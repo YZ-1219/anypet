@@ -13,6 +13,7 @@ export default async function handler(req, res) {
     if (!image) return res.status(400).json({ error: '请上传图片' });
 
     // 动物映射
+    // animalNames no longer needed
     const animalNames = {
       cat:'cat', dog:'dog', rabbit:'rabbit', hamster:'hamster',
       parrot:'parrot', lizard:'lizard', turtle:'turtle', fish:'fish', pet:'cute pet'
@@ -20,18 +21,17 @@ export default async function handler(req, res) {
     const animalName = animalNames[animal] || 'cute pet';
 
     // 8种风格 — 每种都有明显不同的背景描述 + 服装元素
-    // 每个 prompt 前都加上主体保护语句
-    const identityPrefix = `Keep the exact same ${animalName} with identical fur color, markings, breed features and facial expression. Only change the background and lighting style. `;
+    // 主体由原图决定，不写死动物名称
 
     const styles = {
-      '3d_energy': `hyperrealistic 3D render of a ${animalName} wearing a glowing energy armor suit, surrounded by electric lightning bolts and plasma energy, dramatic dark background filled with electric sparks and neon particle effects, volumetric purple and blue light rays, Pixar quality, cinematic, 8k`,
-      'anime_ghibli': `Studio Ghibli anime painting of a ${animalName} wearing a small cute kimono outfit, standing in a magical enchanted forest with giant glowing mushrooms, fireflies, aurora sky, hand-painted style, warm golden light, cherry blossom petals falling, masterpiece`,
-      'cyberpunk_neon': `cyberpunk portrait of a ${animalName} wearing a tiny cyberpunk jacket with neon trim, neon-lit rainy city background, holographic advertisements, neon reflections on wet street, electric blue and magenta glow, blade runner atmosphere, cinematic`,
-      'fantasy_magic': `epic fantasy portrait of a ${animalName} wearing a small wizard robe and hat, surrounded by swirling magical spell effects and glowing runes, enchanted forest background with floating magical orbs and light beams, mystical purple and gold atmosphere, digital art`,
-      'fire_ice': `dramatic portrait of a ${animalName} with fire and ice elements, half background is volcanic lava and fire with embers, half is frozen tundra with ice crystals and snowflakes, the pet wears elemental cape, extreme contrast warm orange and icy blue, epic cinematic`,
-      'golden_hour': `cinematic portrait of a ${animalName} wearing a small bow tie and flower crown, breathtaking golden sunset background, sun rays and warm bokeh, rolling hills silhouette, dust particles floating in golden light, professional photography, award-winning`,
-      'ink_splash': `artistic portrait of a ${animalName} wearing a colorful traditional outfit, dynamic background of explosive Chinese ink splashes and rainbow watercolor bursts, bold abstract paint explosions in red blue gold purple, the pet emerges from beautiful chaos`,
-      'space_cosmic': `cosmic portrait of a ${animalName} wearing a tiny astronaut suit, floating in deep space with a stunning colorful nebula background, swirling purple and blue galactic clouds, stars and distant planets, aurora borealis, cosmic stardust, NASA art style`,
+      '3d_energy': `hyperrealistic 3D render of a the animal in the photo wearing a glowing energy armor suit, surrounded by electric lightning bolts and plasma energy, dramatic dark background filled with electric sparks and neon particle effects, volumetric purple and blue light rays, Pixar quality, cinematic, 8k`,
+      'anime_ghibli': `Studio Ghibli anime painting of a the animal in the photo wearing a small cute kimono outfit, standing in a magical enchanted forest with giant glowing mushrooms, fireflies, aurora sky, hand-painted style, warm golden light, cherry blossom petals falling, masterpiece`,
+      'cyberpunk_neon': `cyberpunk portrait of a the animal in the photo wearing a tiny cyberpunk jacket with neon trim, neon-lit rainy city background, holographic advertisements, neon reflections on wet street, electric blue and magenta glow, blade runner atmosphere, cinematic`,
+      'fantasy_magic': `epic fantasy portrait of a the animal in the photo wearing a small wizard robe and hat, surrounded by swirling magical spell effects and glowing runes, enchanted forest background with floating magical orbs and light beams, mystical purple and gold atmosphere, digital art`,
+      'fire_ice': `dramatic portrait of a the animal in the photo with fire and ice elements, half background is volcanic lava and fire with embers, half is frozen tundra with ice crystals and snowflakes, the pet wears elemental cape, extreme contrast warm orange and icy blue, epic cinematic`,
+      'golden_hour': `cinematic portrait of a the animal in the photo wearing a small bow tie and flower crown, breathtaking golden sunset background, sun rays and warm bokeh, rolling hills silhouette, dust particles floating in golden light, professional photography, award-winning`,
+      'ink_splash': `artistic portrait of a the animal in the photo wearing a colorful traditional outfit, dynamic background of explosive Chinese ink splashes and rainbow watercolor bursts, bold abstract paint explosions in red blue gold purple, the pet emerges from beautiful chaos`,
+      'space_cosmic': `cosmic portrait of a the animal in the photo wearing a tiny astronaut suit, floating in deep space with a stunning colorful nebula background, swirling purple and blue galactic clouds, stars and distant planets, aurora borealis, cosmic stardust, NASA art style`,
     };
 
     const prompt = identityPrefix + (styles[style] || styles['3d_energy']);
