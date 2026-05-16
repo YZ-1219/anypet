@@ -1,4 +1,7 @@
-// api/generate.js — 抠图 + 动漫背景合成
+// api/generate.js
+// Step 1: 抠出宠物（透明PNG）
+// Step 2: 原图背景转动漫风格
+// Step 3: 返回两张图给前端合成
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -11,65 +14,73 @@ export default async function handler(req, res) {
   if (!falKey) return res.status(500).json({ error: 'FAL API Key 未配置' });
 
   try {
-    const { image, bgPrompt } = req.body;
+    const { image, style } = req.body;
     if (!image) return res.status(400).json({ error: '请上传图片' });
 
-    // ── STEP 1: 去除背景，抠出宠物 ──
-    console.log('Step 1: removing background...');
-    const bgRemoveResp = await fetch('https://fal.run/fal-ai/birefnet', {
-      method: 'POST',
-      headers: { 'Authorization': `Key ${falKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image_url: image, model: 'General Use (Light)', output_format: 'png' })
-    });
+    const stylePrompts = {
+      anime: 'anime art style, Studio Ghibli aesthetic, hand drawn, soft warm colors, detailed background, cinematic lighting, masterpiece illustration',
+      manga: 'black and white manga style, detailed ink linework, Japanese comic art, dramatic contrast, screen tones',
+      cyberpunk: 'cyberpunk anime style, neon lights, rain reflections, electric blue and purple, dark atmospheric, blade runner aesthetic',
+      watercolor: 'soft watercolor illustration style, delicate pastel washes, dreamy bokeh, artistic painting, gentle colors',
+      fantasy: 'epic fantasy anime style, magical glowing atmosphere, ethereal light beams, mystical colorful environment',
+    };
 
-    if (!bgRemoveResp.ok) {
-      const err = await bgRemoveResp.json().catch(() => ({}));
-      throw new Error('抠图失败: ' + (err.detail || err.message || bgRemoveResp.status));
-    }
+    const stylePrompt = stylePrompts[style] || stylePrompts.anime;
 
-    const bgRemoveData = await bgRemoveResp.json();
-    const petCutoutUrl = bgRemoveData?.image?.url || bgRemoveData?.images?.[0]?.url;
-    if (!petCutoutUrl) throw new Error('抠图未返回结果');
-    console.log('Step 1 done:', petCutoutUrl);
+    // ── 并行执行：Step 1 抠图 + Step 2 背景风格转换 ──
+    console.log('Running bg removal and style transfer in parallel...');
 
-    // ── STEP 2: 生成动漫风格背景 ──
-    console.log('Step 2: generating anime background...');
-    const bgResp = await fetch('https://fal.run/fal-ai/flux/schnell', {
-      method: 'POST',
-      headers: { 'Authorization': `Key ${falKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        prompt: bgPrompt + ', no animals, no pets, no people, empty scene, highly detailed, masterpiece',
-        image_size: { width: 768, height: 1024 },
-        num_inference_steps: 4,
-        num_images: 1,
-      })
-    });
+    const [cutoutResult, styledBgResult] = await Promise.all([
+      // Step 1: 抠出宠物主体
+      fetch('https://fal.run/fal-ai/birefnet', {
+        method: 'POST',
+        headers: { 'Authorization': `Key ${falKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image_url: image,
+          model: 'General Use (Light)',
+          output_format: 'png'
+        })
+      }).then(r => r.json()),
 
-    if (!bgResp.ok) {
-      const err = await bgResp.json().catch(() => ({}));
-      throw new Error('背景生成失败: ' + (err.detail || err.message || bgResp.status));
-    }
-
-    const bgData = await bgResp.json();
-    const bgUrl = bgData?.images?.[0]?.url;
-    if (!bgUrl) throw new Error('背景未返回结果');
-    console.log('Step 2 done:', bgUrl);
-
-    // ── STEP 3: 下载两张图，返回给前端合成 ──
-    const [petResp, bgImgResp] = await Promise.all([
-      fetch(petCutoutUrl),
-      fetch(bgUrl)
+      // Step 2: 整张原图转动漫风格（背景内容保留，只改画风）
+      fetch('https://fal.run/fal-ai/flux-pro/v1/redux', {
+        method: 'POST',
+        headers: { 'Authorization': `Key ${falKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image_url: image,
+          prompt: stylePrompt + ', same composition and layout as original photo, same background content, same perspective and framing',
+          num_inference_steps: 28,
+          guidance_scale: 2.5, // 低 guidance = 更忠实原图构图
+          image_size: { width: 768, height: 1024 },
+        })
+      }).then(r => r.json())
     ]);
 
-    const [petBuf, bgBuf] = await Promise.all([
+    // 获取 URL
+    const petUrl = cutoutResult?.image?.url || cutoutResult?.images?.[0]?.url;
+    const styledUrl = styledBgResult?.images?.[0]?.url || styledBgResult?.image?.url;
+
+    if (!petUrl) throw new Error('抠图失败，请重试');
+    if (!styledUrl) throw new Error('风格转换失败：' + JSON.stringify(styledBgResult).slice(0,200));
+
+    console.log('Pet URL:', petUrl);
+    console.log('Styled URL:', styledUrl);
+
+    // 下载两张图转 base64
+    const [petResp, styledResp] = await Promise.all([
+      fetch(petUrl),
+      fetch(styledUrl)
+    ]);
+
+    const [petBuf, styledBuf] = await Promise.all([
       petResp.arrayBuffer(),
-      bgImgResp.arrayBuffer()
+      styledResp.arrayBuffer()
     ]);
 
-    const petB64 = 'data:image/png;base64,' + Buffer.from(petBuf).toString('base64');
-    const bgB64 = 'data:image/jpeg;base64,' + Buffer.from(bgBuf).toString('base64');
-
-    return res.status(200).json({ pet: petB64, background: bgB64 });
+    return res.status(200).json({
+      pet: 'data:image/png;base64,' + Buffer.from(petBuf).toString('base64'),
+      background: 'data:image/jpeg;base64,' + Buffer.from(styledBuf).toString('base64')
+    });
 
   } catch (err) {
     console.error('Error:', err.message);
