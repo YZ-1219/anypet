@@ -12,46 +12,23 @@ export default async function handler(req, res) {
     const { image, style } = req.body;
     if (!image) return res.status(400).json({ error: '请上传图片' });
 
-    // 每种风格的 prompt 都是精心设计的
-    // 核心：主体突出 + 创意光效 + 全图统一画风
+    // 策略：用 fal-ai/flux-lora (img2img) 做风格迁移
+    // prompt_strength 0.75 = 75% 创意，25% 保留原图主体
     const styles = {
-      '3d_energy': {
-        prompt: '3D render style, cute pet as main subject, glowing energy particles surrounding the pet, electric lightning bolts in background, volumetric light rays, cinematic depth of field with bokeh background, hyper-detailed fur texture, dramatic studio lighting, sparkling magical aura, Pixar quality render, epic atmosphere',
-        strength: 0.75,
-      },
-      'anime_ghibli': {
-        prompt: 'Studio Ghibli anime art style, hand-painted illustration, warm golden hour lighting, soft ethereal glow around pet, detailed anime background with bokeh, sakura petals floating, gentle magical sparkles, painterly brushwork, masterpiece quality, harmonious color palette, the pet is the clear hero of the scene',
-        strength: 0.72,
-      },
-      'cyberpunk_neon': {
-        prompt: 'cyberpunk aesthetic, neon-lit portrait, electric blue and magenta neon glow emanating from around the pet, rain-slicked reflective ground, holographic particles, dark atmospheric background with city lights bokeh, chromatic aberration, cinematic moody lighting, highly detailed, the pet glows with inner neon energy',
-        strength: 0.75,
-      },
-      'fantasy_magic': {
-        prompt: 'epic fantasy digital art, the pet surrounded by swirling magical energy and glowing runes, mystical forest or cosmic background, dramatic god rays of light, iridescent magical particles, spell effects, deep rich colors, painterly style, cinematic composition, magical creature portrait, awe-inspiring atmosphere',
-        strength: 0.73,
-      },
-      'fire_ice': {
-        prompt: 'dramatic elemental art, pet surrounded by swirling fire and ice energy, half fire half ice aesthetic, glowing embers and ice crystals floating, dramatic contrast of warm orange and cool blue, volumetric smoke and mist, epic cinematic composition, hyper-detailed, dynamic energy effects, the pet radiates elemental power',
-        strength: 0.76,
-      },
-      'golden_hour': {
-        prompt: 'cinematic golden hour photography style, warm orange and golden bokeh background, lens flare and light leaks, soft dreamy atmosphere, the pet bathed in warm sunlight, dust particles floating in light beams, professional portrait photography, shallow depth of field, film grain, award-winning pet photography',
-        strength: 0.65,
-      },
-      'ink_splash': {
-        prompt: 'dynamic ink splash art style, Chinese ink painting meets modern digital art, bold ink splashes and watercolor washes surrounding the pet, dramatic black ink strokes, colorful paint splashes, minimalist yet powerful composition, the pet emerges from abstract ink and color explosions, artistic masterpiece',
-        strength: 0.74,
-      },
-      'space_cosmic': {
-        prompt: 'cosmic space art, the pet floating in a stunning nebula, galaxy and stars background, colorful cosmic clouds in purple and blue, the pet surrounded by stardust and cosmic energy, planets in background, aurora borealis effect, dreamlike surreal atmosphere, NASA space art aesthetic, magnificent scale',
-        strength: 0.76,
-      },
+      '3d_energy': 'adorable pet portrait, 3D Pixar render style, glowing electric energy and lightning bolts surrounding the pet, dramatic dark background with electric sparks, volumetric purple and blue light, particle effects, photorealistic fur, cinematic depth of field, epic atmosphere, masterpiece quality render',
+      'anime_ghibli': 'cute pet portrait, Studio Ghibli anime illustration style, lush magical meadow background with floating glowing fireflies and cherry blossoms, warm golden sunset sky, hand-painted watercolor style, soft magical bokeh, painterly brushstrokes, masterpiece anime art',
+      'cyberpunk_neon': 'pet portrait in cyberpunk city, neon-drenched rainy night background, holographic signs and neon reflections on wet pavement, electric blue magenta neon glow, dark atmospheric background, cinematic moody lighting, blade runner aesthetic',
+      'fantasy_magic': 'pet portrait surrounded by swirling magical energy, enchanted forest background with glowing runes and mystical orbs, ethereal purple and gold light beams, sparkles and spell effects, epic fantasy digital art, magical creature, dark mystical atmosphere',
+      'fire_ice': 'pet portrait with dramatic elemental background, half the background swirling fire with embers, half glacial ice crystals and snowflakes, extreme contrast of warm orange and cool blue, dynamic energy effects, dramatic cinematic composition',
+      'golden_hour': 'professional pet portrait, breathtaking golden hour sunset background, warm orange and golden bokeh balls, sun rays and lens flare, dust particles in light, cinematic photography, shallow depth of field, award-winning pet photography, film grain',
+      'ink_splash': 'pet portrait, dynamic Chinese ink splash art background, bold colorful paint explosions in red blue green and purple, ink splatter and watercolor washes, abstract artistic background, the pet emerges from beautiful chaos of color and ink',
+      'space_cosmic': 'pet portrait floating in outer space, stunning colorful nebula background, swirling purple and blue cosmic clouds, stars and galaxies, aurora borealis effect, planet in distance, cosmic stardust surrounding the pet, NASA space art style, magnificent scale',
     };
 
-    const chosen = styles[style] || styles['3d_energy'];
+    const prompt = styles[style] || styles['3d_energy'];
 
-    const resp = await fetch('https://fal.run/fal-ai/flux-pro/v1/redux', {
+    // 使用 flux-dev with image-to-image 获得更强风格控制
+    const resp = await fetch('https://fal.run/fal-ai/flux/dev/image-to-image', {
       method: 'POST',
       headers: {
         'Authorization': `Key ${falKey}`,
@@ -59,23 +36,29 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         image_url: image,
-        prompt: chosen.prompt,
+        prompt: prompt,
+        strength: 0.80,        // 80% 创意变化，20% 保留原图主体
         num_inference_steps: 28,
-        guidance_scale: chosen.strength * 5, // 3~4 范围让主体保留同时背景创意
+        guidance_scale: 3.5,
         image_size: { width: 768, height: 1024 },
+        num_images: 1,
       })
     });
 
     if (!resp.ok) {
       const err = await resp.json().catch(() => ({}));
-      throw new Error(err.detail || err.message || 'fal.ai 调用失败');
+      // fallback to flux redux
+      console.log('img2img failed, trying redux:', err.detail || err.message);
+      return await tryRedux(falKey, image, prompt, res);
     }
 
     const data = await resp.json();
-    const imgUrl = data?.images?.[0]?.url || data?.image?.url;
-    if (!imgUrl) throw new Error('未获得图片');
+    const imgUrl = data?.images?.[0]?.url;
 
-    // 下载转 base64
+    if (!imgUrl) {
+      return await tryRedux(falKey, image, prompt, res);
+    }
+
     const imgResp = await fetch(imgUrl);
     const buffer = await imgResp.arrayBuffer();
     const base64 = Buffer.from(buffer).toString('base64');
@@ -87,4 +70,29 @@ export default async function handler(req, res) {
     console.error('Error:', err.message);
     return res.status(500).json({ error: err.message });
   }
+}
+
+async function tryRedux(falKey, image, prompt, res) {
+  const resp = await fetch('https://fal.run/fal-ai/flux-pro/v1/redux', {
+    method: 'POST',
+    headers: { 'Authorization': `Key ${falKey}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      image_url: image,
+      prompt: prompt,
+      num_inference_steps: 28,
+      guidance_scale: 4.5,
+      image_size: { width: 768, height: 1024 },
+    })
+  });
+
+  const data = await resp.json();
+  const imgUrl = data?.images?.[0]?.url || data?.image?.url;
+  if (!imgUrl) throw new Error('生成失败，请重试');
+
+  const imgResp = await fetch(imgUrl);
+  const buffer = await imgResp.arrayBuffer();
+  const base64 = Buffer.from(buffer).toString('base64');
+  const ct = imgResp.headers.get('content-type') || 'image/jpeg';
+
+  return res.status(200).json({ output: `data:${ct};base64,${base64}` });
 }
