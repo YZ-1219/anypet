@@ -101,6 +101,21 @@ nav{display:flex;align-items:center;padding:13px 28px;border-bottom:1px solid va
 <div class="lp">
 
   <div>
+    <div class="sec-t">动物种类</div>
+    <div id="ag" style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:4px;">
+      <div class="ao sel" data-n="dog" onclick="selA(this)" style="border:1px solid rgba(237,232,248,0.13);border-radius:8px;padding:7px 3px;text-align:center;cursor:pointer;background:rgba(168,85,247,0.12);border-color:#A855F7;"><span style="font-size:17px;display:block;margin-bottom:2px;">🐶</span><div style="font-size:9px;color:#A855F7;font-weight:500;">狗</div></div>
+      <div class="ao" data-n="cat" onclick="selA(this)" style="border:1px solid rgba(237,232,248,0.13);border-radius:8px;padding:7px 3px;text-align:center;cursor:pointer;background:rgba(255,255,255,0.02);"><span style="font-size:17px;display:block;margin-bottom:2px;">🐱</span><div style="font-size:9px;color:rgba(237,232,248,0.4);font-weight:500;">猫</div></div>
+      <div class="ao" data-n="rabbit" onclick="selA(this)" style="border:1px solid rgba(237,232,248,0.13);border-radius:8px;padding:7px 3px;text-align:center;cursor:pointer;background:rgba(255,255,255,0.02);"><span style="font-size:17px;display:block;margin-bottom:2px;">🐰</span><div style="font-size:9px;color:rgba(237,232,248,0.4);font-weight:500;">兔子</div></div>
+      <div class="ao" data-n="hamster" onclick="selA(this)" style="border:1px solid rgba(237,232,248,0.13);border-radius:8px;padding:7px 3px;text-align:center;cursor:pointer;background:rgba(255,255,255,0.02);"><span style="font-size:17px;display:block;margin-bottom:2px;">🐹</span><div style="font-size:9px;color:rgba(237,232,248,0.4);font-weight:500;">仓鼠</div></div>
+      <div class="ao" data-n="parrot" onclick="selA(this)" style="border:1px solid rgba(237,232,248,0.13);border-radius:8px;padding:7px 3px;text-align:center;cursor:pointer;background:rgba(255,255,255,0.02);"><span style="font-size:17px;display:block;margin-bottom:2px;">🦜</span><div style="font-size:9px;color:rgba(237,232,248,0.4);font-weight:500;">鹦鹉</div></div>
+      <div class="ao" data-n="lizard" onclick="selA(this)" style="border:1px solid rgba(237,232,248,0.13);border-radius:8px;padding:7px 3px;text-align:center;cursor:pointer;background:rgba(255,255,255,0.02);"><span style="font-size:17px;display:block;margin-bottom:2px;">🦎</span><div style="font-size:9px;color:rgba(237,232,248,0.4);font-weight:500;">蜥蜴</div></div>
+      <div class="ao" data-n="turtle" onclick="selA(this)" style="border:1px solid rgba(237,232,248,0.13);border-radius:8px;padding:7px 3px;text-align:center;cursor:pointer;background:rgba(255,255,255,0.02);"><span style="font-size:17px;display:block;margin-bottom:2px;">🐢</span><div style="font-size:9px;color:rgba(237,232,248,0.4);font-weight:500;">龟</div></div>
+      <div class="ao" data-n="fish" onclick="selA(this)" style="border:1px solid rgba(237,232,248,0.13);border-radius:8px;padding:7px 3px;text-align:center;cursor:pointer;background:rgba(255,255,255,0.02);"><span style="font-size:17px;display:block;margin-bottom:2px;">🐠</span><div style="font-size:9px;color:rgba(237,232,248,0.4);font-weight:500;">观赏鱼</div></div>
+      <div class="ao" data-n="pet" onclick="selA(this)" style="border:1px solid rgba(237,232,248,0.13);border-radius:8px;padding:7px 3px;text-align:center;cursor:pointer;background:rgba(255,255,255,0.02);"><span style="font-size:17px;display:block;margin-bottom:2px;">🐾</span><div style="font-size:9px;color:rgba(237,232,248,0.4);font-weight:500;">其他</div></div>
+    </div>
+  </div>
+
+  <div>
     <div class="sec-t">选择风格</div>
     <div class="sg" id="sg">
 
@@ -215,7 +230,7 @@ nav{display:flex;align-items:center;padding:13px 28px;border-bottom:1px solid va
 <div class="toast" id="toast"><span id="tm"></span></div>
 
 <script>
-let selStyle='3d_energy';
+let selStyle='3d_energy', selAnimal='dog';
 let uploadedB64=null, resultImg=null;
 let isGen=false, raf=null, t=0;
 let particles=[];
@@ -247,6 +262,17 @@ Object.entries(pvDefs).forEach(([id,def])=>{
   requestAnimationFrame(fr);
 });
 
+function selA(el){
+  document.querySelectorAll('.ao').forEach(o=>{
+    o.style.background='rgba(255,255,255,0.02)';
+    o.style.borderColor='rgba(237,232,248,0.13)';
+    o.querySelector('div').style.color='rgba(237,232,248,0.4)';
+  });
+  el.style.background='rgba(168,85,247,0.12)';
+  el.style.borderColor='#A855F7';
+  el.querySelector('div').style.color='#A855F7';
+  selAnimal=el.dataset.n;
+}
 function selS(el){
   document.querySelectorAll('.sc').forEach(o=>o.classList.remove('sel'));
   el.classList.add('sel');
@@ -299,7 +325,7 @@ async function startGen(){
     const resp=await fetch('/api/generate',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({image:uploadedB64,style:selStyle})
+      body:JSON.stringify({image:uploadedB64,style:selStyle,animal:selAnimal})
     });
 
     if(!resp.ok){const err=await resp.json();throw new Error(err.error||'生成失败');}
