@@ -187,7 +187,7 @@ nav{flex-shrink:0;display:flex;align-items:center;padding:12px 24px;border-botto
 <div class="toast" id="toast"><span id="tm"></span></div>
 
 <script>
-let selStyle='3d_energy', uploadedB64=null, resultImg=null;
+let selStyle='3d_energy', uploadedB64=null, resultImg=null, petCutout=null, bgImage=null;
 let isGen=false, raf=null, t=0, particles=[];
 
 const canvas=document.getElementById('wc'), ctx=canvas.getContext('2d');
@@ -217,7 +217,7 @@ function handleFile(e){
     uz.classList.add('has');
     uz.innerHTML='<img class="up" src="'+ev.target.result+'"><button class="uch" onclick="resetUpload()">↺ 更换</button>';
     document.getElementById('ep').classList.remove('show');
-    resultImg=null;
+    resultImg=null; petCutout=null; bgImage=null;
   };
   reader.readAsDataURL(file);
 }
@@ -248,8 +248,20 @@ async function startGen(){
     const resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:uploadedB64,style:selStyle})});
     if(!resp.ok){const e=await resp.json();throw new Error(e.error||'生成失败');}
     const data=await resp.json();
-    step(2); prog(75,'加载结果…');
-    resultImg=await loadImg(data.output);
+    step(2); prog(72,'加载图像…');
+
+    if(data.pet && data.background){
+      // 两张图：抠图主角 + AI生成背景
+      const [petI, bgI] = await Promise.all([loadImg(data.pet), loadImg(data.background)]);
+      petCutout = petI;
+      bgImage = bgI;
+      resultImg = null;
+    } else {
+      // 单张图 fallback
+      resultImg = await loadImg(data.output);
+      petCutout = null; bgImage = null;
+    }
+
     step(3); prog(95,'渲染…');
     initParticles(selStyle);
     startAnim();
@@ -297,15 +309,48 @@ function startAnim(){
 
 function drawFrame(){
   ctx.clearRect(0,0,W,H);
-  if(resultImg&&resultImg.complete&&resultImg.naturalWidth>0){
+
+  if(bgImage&&bgImage.complete&&bgImage.naturalWidth>0){
+    // 1. 背景铺满
+    const sc=Math.max(W/bgImage.naturalWidth,H/bgImage.naturalHeight);
+    ctx.drawImage(bgImage,(W-bgImage.naturalWidth*sc)/2,(H-bgImage.naturalHeight*sc)/2,bgImage.naturalWidth*sc,bgImage.naturalHeight*sc);
+
+    // 2. 粒子在背景层（部分）
+    ctx.save(); ctx.globalAlpha=0.5; drawParticles(); ctx.restore();
+
+    // 3. 主角（抠图）叠上去，带发光融合
+    if(petCutout&&petCutout.complete&&petCutout.naturalWidth>0){
+      const psc=Math.min(W*0.9/petCutout.naturalWidth, H*0.82/petCutout.naturalHeight);
+      const pw=petCutout.naturalWidth*psc, ph=petCutout.naturalHeight*psc;
+      const px=(W-pw)/2, py=(H-ph)/2 - H*0.04;
+
+      // 发光光晕（背景色融合）
+      const glowColors={'3d_energy':'rgba(124,58,237,0.35)','anime_ghibli':'rgba(251,191,36,0.25)','cyberpunk_neon':'rgba(0,255,255,0.25)','fantasy_magic':'rgba(167,139,250,0.3)','fire_ice':'rgba(249,115,22,0.25)','golden_hour':'rgba(251,191,36,0.3)','ink_splash':'rgba(220,38,38,0.2)','space_cosmic':'rgba(99,102,241,0.3)'};
+      const glowColor = glowColors[selStyle]||'rgba(124,58,237,0.25)';
+      ctx.save();
+      ctx.shadowColor=glowColor; ctx.shadowBlur=60;
+      ctx.drawImage(petCutout,px,py,pw,ph);
+      ctx.restore();
+
+      // 再画一次无阴影（清晰主角）
+      ctx.drawImage(petCutout,px,py,pw,ph);
+    }
+
+    // 4. 前景粒子
+    drawParticles();
+
+  } else if(resultImg&&resultImg.complete&&resultImg.naturalWidth>0){
+    // fallback: 单图模式
     const sc=Math.max(W/resultImg.naturalWidth,H/resultImg.naturalHeight);
     ctx.drawImage(resultImg,(W-resultImg.naturalWidth*sc)/2,(H-resultImg.naturalHeight*sc)/2,resultImg.naturalWidth*sc,resultImg.naturalHeight*sc);
+    drawParticles();
   } else {
     ctx.fillStyle='#06040A'; ctx.fillRect(0,0,W,H);
     ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.font='bold 24px sans-serif'; ctx.textAlign='center';
     ctx.fillText('上传照片后生成',W/2,H/2);
   }
-  drawParticles();
+
+  // 底部渐变
   const g=ctx.createLinearGradient(0,H*.65,0,H);
   g.addColorStop(0,'transparent'); g.addColorStop(1,'rgba(0,0,0,0.82)');
   ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
