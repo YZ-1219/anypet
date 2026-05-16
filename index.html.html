@@ -23,7 +23,7 @@ nav{display:flex;align-items:center;padding:13px 28px;border-bottom:1px solid va
 .sec-t::before{content:'';width:10px;height:1px;background:var(--purple2);}
 
 /* STYLE CARDS — 2-col grid with preview thumbnails */
-.sg{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:6px;overflow:hidden;}
 .sc{border:1px solid var(--border2);border-radius:10px;overflow:hidden;cursor:pointer;transition:all 0.17s;background:rgba(255,255,255,0.02);position:relative;}
 .sc:hover{border-color:var(--purple2);transform:translateY(-2px);box-shadow:0 6px 20px rgba(124,58,237,0.2);}
 .sc.sel{border-color:var(--purple2);border-width:1.5px;box-shadow:0 0 16px rgba(124,58,237,0.3);}

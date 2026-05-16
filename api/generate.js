@@ -34,9 +34,10 @@ export default async function handler(req, res) {
       'space_cosmic': `cosmic portrait of a the animal in the photo wearing a tiny astronaut suit, floating in deep space with a stunning colorful nebula background, swirling purple and blue galactic clouds, stars and distant planets, aurora borealis, cosmic stardust, NASA art style`,
     };
 
-    const prompt = identityPrefix + (styles[style] || styles['3d_energy']);
+    const prefix = 'Preserve the exact appearance, fur/skin color, markings and body shape of the animal in the photo. Only transform the background, lighting and add costume elements. ';
+    const prompt = prefix + (styles[style] || styles['3d_energy']);
 
-    console.log('Using style:', style, '| Animal:', animalName);
+    console.log('Using style:', style);
     console.log('Prompt:', prompt.substring(0, 100));
 
     // 用 fast-sdxl img2img — 速度快，风格变化大
