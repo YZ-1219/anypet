@@ -248,20 +248,9 @@ async function startGen(){
     const resp=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:uploadedB64,style:selStyle})});
     if(!resp.ok){const e=await resp.json();throw new Error(e.error||'生成失败');}
     const data=await resp.json();
-    step(2); prog(72,'加载图像…');
-
-    if(data.pet && data.background){
-      // 两张图：抠图主角 + AI生成背景
-      const [petI, bgI] = await Promise.all([loadImg(data.pet), loadImg(data.background)]);
-      petCutout = petI;
-      bgImage = bgI;
-      resultImg = null;
-    } else {
-      // 单张图 fallback
-      resultImg = await loadImg(data.output);
-      petCutout = null; bgImage = null;
-    }
-
+    step(2); prog(75,'加载图像…');
+    resultImg = await loadImg(data.output);
+    petCutout = null; bgImage = null;
     step(3); prog(95,'渲染…');
     initParticles(selStyle);
     startAnim();
