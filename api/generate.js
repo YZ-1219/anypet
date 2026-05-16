@@ -44,7 +44,7 @@ export default async function handler(req, res) {
         image_url: image,
         prompt: prompt,
         negative_prompt: 'blurry, low quality, deformed, ugly, extra limbs, text, watermark',
-        strength: 0.85,
+        strength: 0.95,
         num_inference_steps: 35,
         guidance_scale: 8.0,
         image_size: { width: 768, height: 1024 },
@@ -69,7 +69,7 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           image_url: image,
           prompt: prompt,
-          strength: 0.85,
+          strength: 0.95,
           num_inference_steps: 28,
           guidance_scale: 4.0,
           image_size: { width: 768, height: 1024 },
