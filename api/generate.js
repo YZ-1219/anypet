@@ -20,6 +20,9 @@ export default async function handler(req, res) {
     const animalName = animalNames[animal] || 'cute pet';
 
     // 8种风格 — 每种都有明显不同的背景描述 + 服装元素
+    // 每个 prompt 前都加上主体保护语句
+    const identityPrefix = `Keep the exact same ${animalName} with identical fur color, markings, breed features and facial expression. Only change the background and lighting style. `;
+
     const styles = {
       '3d_energy': `hyperrealistic 3D render of a ${animalName} wearing a glowing energy armor suit, surrounded by electric lightning bolts and plasma energy, dramatic dark background filled with electric sparks and neon particle effects, volumetric purple and blue light rays, Pixar quality, cinematic, 8k`,
       'anime_ghibli': `Studio Ghibli anime painting of a ${animalName} wearing a small cute kimono outfit, standing in a magical enchanted forest with giant glowing mushrooms, fireflies, aurora sky, hand-painted style, warm golden light, cherry blossom petals falling, masterpiece`,
@@ -31,7 +34,7 @@ export default async function handler(req, res) {
       'space_cosmic': `cosmic portrait of a ${animalName} wearing a tiny astronaut suit, floating in deep space with a stunning colorful nebula background, swirling purple and blue galactic clouds, stars and distant planets, aurora borealis, cosmic stardust, NASA art style`,
     };
 
-    const prompt = styles[style] || styles['3d_energy'];
+    const prompt = identityPrefix + (styles[style] || styles['3d_energy']);
 
     console.log('Using style:', style, '| Animal:', animalName);
     console.log('Prompt:', prompt.substring(0, 100));
@@ -44,7 +47,7 @@ export default async function handler(req, res) {
         image_url: image,
         prompt: prompt,
         negative_prompt: 'blurry, low quality, deformed, ugly, extra limbs, text, watermark',
-        strength: 0.95,
+        strength: 0.88,
         num_inference_steps: 35,
         guidance_scale: 8.0,
         image_size: { width: 768, height: 1024 },
@@ -69,7 +72,7 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           image_url: image,
           prompt: prompt,
-          strength: 0.95,
+          strength: 0.88,
           num_inference_steps: 28,
           guidance_scale: 4.0,
           image_size: { width: 768, height: 1024 },
